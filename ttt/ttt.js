@@ -14,50 +14,68 @@ class TTT {
   ] }
 
   static get DRAW() { return {
-    X: "X",
-    O: "O",
+    PLAYERS: ["X","O"],
     BLANK: "-"
   } }
+  static get PLAYER_COUNT() { return 2 }
   static get BOARD_SIZE() { return 3 }
   static get MAX_MOVES() { return TTT.BOARD_SIZE * TTT.BOARD_SIZE }
 
   // lets begin
   constructor() {
-    this.X = [0x000000000];
-    this.O = [0x000000000];
-    this.turn = true; // true = X false = 0
+    this.players = Array.from(Array(TTT.PLAYER_COUNT)).fill([0x000000000]);
+    this.players = new Array(TTT.PLAYER_COUNT);
+    for (var i = 0; i < this.players.length; i++){
+      this.players[i] = [0]
+    }
+    this.board = 0;
+    this.turn = 0;
   }
 
-  getX(withHistory) { return withHistory ? this.X : this.X[0]}
-  getO(withHistory) { return withHistory ? this.O : this.O[0]}
+  // this collapses all players pieces
+  updateBoard () {
+    this.board = this.players.reduce( function(accumulator, currentValue) {
+      return accumulator | currentValue[0];
+    }, 0);
+  }
 
   isValidMove (move) {
     // ensure move is a power of 2 (only 1 bit set)
     if ((move & -move) !== move) return false;
 
     // move is valid if there's no overlap with X or O's pieces
-    return ( (this.X[0] | this.O[0]) & move ) === 0;
+    return ( this.board & move ) === 0;
   }
 
   static makeMove (board, move) {
     board.unshift( board[0] |= move);
   }
 
+  nextPlayer () {
+    this.turn = (this.turn + 1) % TTT.PLAYER_COUNT;
+  }
+
+  // returns true if current player has won
   takeTurn (move) {
+
     // validate
     if ( !this.isValidMove(move) )
       throw new Error ("Invalide Move");
 
     // add the move to the current players board
-    if (this.turn)
-      TTT.makeMove( this.X, move);
-    else
-      TTT.makeMove( this.O, move);
+    TTT.makeMove( this.players[this.turn], move);
+
+    // update board
+    this.updateBoard();    
+    
+    // check win
+    if ( TTT.hasWon( this.players[this.turn][0] ) )
+      return true;
 
     // swap turns
-    this.turn = !this.turn;
-    console.log("it's %s turn", this.turn ? TTT.DRAW.X : TTT.DRAW.O )
+    this.nextPlayer();
 
+    return false;
   }
 
   // returns the winning match if any
@@ -73,8 +91,10 @@ class TTT {
   }
 
   getAvailableMoves () {
+
     var available = [];
     var move = 1;
+
     for (var i = 0; i < TTT.MAX_MOVES; i++) {
       if ( isValidMove(move) )
         available.push( move );
@@ -86,33 +106,31 @@ class TTT {
   toString (history) {
 
     // check history is at least 1, at most the size of our history
-    history = Math.max( Math.min(history || 1, this.X.length - 1), 1);
+    history = Math.max( Math.min(history || 1, this.players[0].length - 1), 1);
     var temp = "";
 
     // go back through the plays
     for (var h = 0; h < history; h++) {
 
-      var x = this.X[h];
-      var o = this.O[h];
-      var p = 1; // bit position
-
-      console.log(x.toString(2));
-      console.log(o.toString(2));
+      var bitpos = 1; // bit position
 
       // easiest to just loop through a grid
       for(var r = 0; r < TTT.BOARD_SIZE; r++) {
         for(var c = 0; c < TTT.BOARD_SIZE; c++) {
           
-          // check who is at this position
-          if (x & p) 
-            temp = temp + TTT.DRAW.X;
-          else if (o & p)
-            temp = temp + TTT.DRAW.O;
-          else
+          if ( (this.board & bitpos) === 0 ) {
+            // if empty
             temp = temp + TTT.DRAW.BLANK;
+          } else {
+            // loop through to find who
+            for(var p = 0; p < this.players.length; p++) {
+              if (this.players[p][0] & bitpos)
+                temp = temp + TTT.DRAW.PLAYERS[p];
+            }
+          }
 
           // shift left 1 and start again
-          p <<= 1;
+          bitpos <<= 1;
 
         }
         temp = temp + "\n";

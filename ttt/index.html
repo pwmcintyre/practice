@@ -5,7 +5,18 @@
         body {
             font-family: monospace;
         }
-        #log > div:nth-child(odd) {
+        ul#log { 
+            display: flex;
+            flex-direction: column-reverse;
+            
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        ul#log>li {
+            flex: 0 0 auto;
+        }
+        ul#log>li:nth-child(odd) {
             background-color: #ddd;
         }
         </style>
@@ -18,9 +29,9 @@
         <div id="board">
 
         </div>
-        <div id="log">
+        <ul id="log">
 
-        </div>
+        </ul>
         <script>
 
 
@@ -34,7 +45,7 @@
         } else {
             message = message.replace(/\n/g,'<br/>');
         }
-        var node = document.createElement("div");
+        var node = document.createElement("li");
         node.innerHTML = message;
         logger.appendChild(node);
     }
@@ -49,7 +60,14 @@ function move (input) {
     var input = document.getElementById('move').value;
     var move = parseInt(input, 2);
     console.log( move.toString(2) );
-    t.takeTurn(move);
+
+    if ( t.takeTurn(move) )
+        console.log(`player ${TTT.DRAW.PLAYERS[t.turn]} wins!!!` )
+    else
+        console.log(`it's  player ${TTT.DRAW.PLAYERS[t.turn]}'s turn` )
+
+    
+    
     update();
 }
 
