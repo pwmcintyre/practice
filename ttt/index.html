@@ -1,0 +1,61 @@
+<html>
+    <head>
+        <script src="ttt.js"></script>
+        <style>
+        body {
+            font-family: monospace;
+        }
+        #log > div:nth-child(odd) {
+            background-color: #ddd;
+        }
+        </style>
+    </head>
+    <body>
+        <div id="input">
+            <input id="move" type="number" />
+            <button onclick="move()">move</button>
+        </div>
+        <div id="board">
+
+        </div>
+        <div id="log">
+
+        </div>
+        <script>
+
+
+(function () {
+    var old = console.log;
+    var logger = document.getElementById('log');
+    console.log = function (message) {
+        old.apply( this, arguments ); 
+        if (typeof message == 'object') {
+            message = (JSON && JSON.stringify ? JSON.stringify(message) : message);
+        } else {
+            message = message.replace(/\n/g,'<br/>');
+        }
+        var node = document.createElement("div");
+        node.innerHTML = message;
+        logger.appendChild(node);
+    }
+})();
+
+function update () {
+    var board = t.toString().replace(/\n/g,'<br/>');;
+    document.getElementById('board').innerHTML = board;
+}
+
+function move (input) {
+    var input = document.getElementById('move').value;
+    var move = parseInt(input, 2);
+    console.log( move.toString(2) );
+    t.takeTurn(move);
+    update();
+}
+
+var t = new TTT();
+update();
+
+        </script>
+    </body>
+</html>
