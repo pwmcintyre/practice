@@ -79,15 +79,18 @@ function print () {
     var arr = n.getOutputs();
     var recommendations = arr.map(function(v,i,a){
         return {
-            position: i,
+            positionIndex: i,
+            position: (1 << i),
             score: v
         }
     }).sort(function(a,b){
         return b.score - a.score
     });
-    var avail = t.getAvailableMoves().toString(2);
-    recommendations.forEach(function(a){
-        console.log(`Next move ${a.position} with ${a.score}`);
+    var avail = t.getAvailableMoves();
+    recommendations.forEach(function(r){
+        // is move valid?
+        var a = avail.indexOf(r.position) >= 0 ? ' ***** available' : '';
+        console.log(`Next move ${r.positionIndex} (${r.position.toString(2)}) with ${r.score}${a}`);
     })
 }
 
