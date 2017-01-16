@@ -96,7 +96,7 @@ class TTT {
     var move = 1;
 
     for (var i = 0; i < TTT.MAX_MOVES; i++) {
-      if ( isValidMove(move) )
+      if ( this.isValidMove(move) )
         available.push( move );
       move <<= 1;
     }
@@ -140,6 +140,23 @@ class TTT {
     }
 
     return temp;
+  }
+
+  playerBoardToString() {
+    function padLeft(nr, n, str){
+      return Array(n-String(nr).length+1).join(str||'0')+nr;
+    }
+
+    var a = '';
+    for (var i = 0; i < t.players.length; i++) {
+      a = a + padLeft( t.players[i][0].toString(2), TTT.MAX_MOVES );
+    }
+
+    return a;
+  }
+
+  playerBoardToArray() {
+    return this.playerBoardToString().split('');
   }
 
 };

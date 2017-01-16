@@ -70,11 +70,41 @@ function move (input) {
     
     
     update();
+    updateNN();
+    print();
+}
+
+function print () {
+    n.toString();
+    var arr = n.getOutputs();
+    var recommendations = arr.map(function(v,i,a){
+        return {
+            position: i,
+            score: v
+        }
+    }).sort(function(a,b){
+        return b.score - a.score
+    });
+    var avail = t.getAvailableMoves().toString(2);
+    recommendations.forEach(function(a){
+        console.log(`Next move ${a.position} with ${a.score}`);
+    })
+}
+
+function updateNN () {
+    n.setInputs( t.playerBoardToArray() );
+    n.update();
 }
 
 var t = new TTT();
 update();
 
+var inputs = t.playerBoardToArray();
+var outputs = 9;
+
+var n = new NeuralNet(inputs, outputs);
+
+print();
         </script>
     </body>
 </html>

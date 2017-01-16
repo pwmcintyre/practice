@@ -1,10 +1,11 @@
 
-class NN {
+class NeuralNet {
     constructor (inputs, outputs, options, weights) {
+
         this.inputs = inputs || new Array(18);
         this.outputs = outputs || 9;
         this.options = options || {
-            layers: [this.inputs.length, 20,20, this.outputs]
+            layers: [this.inputs.length, 20, this.outputs]
         }
 
         // calculate how many weights we'll need
@@ -17,15 +18,18 @@ class NN {
         // expecting weights to be a string of hex
         // if it's too short, fill it out
         this.weights = weights || '';
+
+        // TODO this doesn't work
         this.weights = this.weights.split('').map(function(a,b){return parseInt(a,16)||0});
         for (var i = this.weights.length; i <  this.synapseCount; i++) {
-            this.weights.push( NN.randomWeight() );
+            this.weights.push( NeuralNet.randomWeight() );
         }
+        this.weights = this.weights.map(function(a,b){ return a });
 
         // build layers
         // this includes input and output layer
         this.layers = new Array();
-        for (var i = 0; i < this.options.layers.length+1; i++) {
+        for (var i = 0; i < this.options.layers.length; i++) {
             this.layers.push([]);
             for (var j = 0; j < this.options.layers[i]; j++) {
                 // hidden layers start with no value
@@ -49,20 +53,88 @@ class NN {
 
     }
 
-    static get WEIGHT_MIN() { return 0x0 }
-    static get WEIGHT_MAX() { return 0xF }
+    static get WEIGHT_MIN()   { return -1 }
+    static get WEIGHT_MAX()   { return  1 }
+    static get WEIGHT_RANGE() { return NeuralNet.WEIGHT_MAX - NeuralNet.WEIGHT_MIN }
 
     static randomWeight() {
-        return Math.round( NN.WEIGHT_MIN + 
-            Math.random() * (NN.WEIGHT_MAX - NN.WEIGHT_MIN) );
+        return Math.round( NeuralNet.WEIGHT_MIN + Math.random() * NeuralNet.WEIGHT_RANGE );
+    }
+
+    setInputs (inputs) {
+        for (var i = 0; i < this.layers[0].length && i < inputs.length; i++) {
+            this.layers[0][i].value = inputs[i];
+        }
+    }
+
+    update () {
+        // iterate over each node
+        // excluding input layer
+        for (var i = 1; i < this.layers.length; i++) {
+            for (var j = 0; j < this.layers[i].length; j++) {
+                this.layers[i][j].update();
+            }
+        }
+    }
+
+    getOutputs () {
+        return this.layers[this.layers.length-1].map( function(a){
+            return a.value;
+        });
+    }
+
+    toString () {
+        for (var i = 0; i < this.layers.length; i++) {
+            console.log( `Layer ${i} - ${this.layers[i].length} nodes` );
+            for (var j = 0; j < this.layers[i].length; j++) {
+                console.log( this.layers[i][j].toString() );
+            }
+        }
     }
 }
 
 class Node {
-    constructor (value, weights, inputs, outputs) {
+
+    constructor (value, weights, inputs, func) {
         this.value = value || 0;
+        this.bias = 0; // TODO!
         this.inputs = inputs || [];
         this.outputs = outputs || [];
         this.weights = weights || [];
+        this.activation_function = func || Node.ACTIVATION_FUNCTIONS.logistic;
+    }
+
+    update () {
+        // apply the chosen activation function
+        this.value = this.activation_function(this);
+    }
+
+    toString () {
+        return this.value;
+    }
+
+    // all posible activation functions
+    // https://en.wikipedia.org/wiki/Activation_function
+    // https://www.quora.com/What-is-the-role-of-the-activation-function-in-a-neural-network
+    static get ACTIVATION_FUNCTIONS() {
+
+        return {
+
+            logistic: function (node) {
+
+                var sum = 0;
+
+                for(var i = 0; i < this.inputs.length; i++) {
+                    var v = this.inputs[i].value;
+                    var w = this.weights[i];
+                    
+                    sum += w*v;
+                }
+
+                sum = 1 / ( 1 + Math.exp( -sum ) );
+                // sum = Math.log( sum );
+                return sum;
+            }
+        }
     }
 }
