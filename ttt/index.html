@@ -1,7 +1,10 @@
 <html>
     <head>
-        <script src="ttt.js"></script>
-        <script src="nn.js"></script>
+        <script src="tictactoe.js"></script>
+        <script src="neural_net.js"></script>
+        <script src="game.js"></script>
+        <script src="player.js"></script>
+        <script src="coach.js"></script>
         <style>
         body {
             font-family: monospace;
@@ -35,7 +38,7 @@
         </ul>
         <script>
 
-
+// extend console.log to print to HTML
 (function () {
     var old = console.log;
     var logger = document.getElementById('log');
@@ -51,6 +54,14 @@
         logger.appendChild(node);
     }
 })();
+
+
+
+
+
+
+
+
 
 function update () {
     var board = t.toString().replace(/\n/g,'<br/>');;
@@ -99,15 +110,18 @@ function updateNN () {
     n.update();
 }
 
-var t = new TTT();
-update();
+// var t = new TTT();
+// update();
 
-var inputs = t.playerBoardToArray();
-var outputs = 9;
+// var inputs = t.playerBoardToArray();
+// var outputs = 9;
 
-var n = new NeuralNet(inputs, outputs);
+// var n = new NeuralNet(inputs, outputs);
 
-print();
+// print();
+
+
+
         </script>
     </body>
 </html>
