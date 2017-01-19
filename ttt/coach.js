@@ -2,7 +2,7 @@ class Coach {
 
     constructor(players, opp) {
         this.opponent = opp || new Rando();
-        this.players = players || [new Rando()];
+        this.players = players || [new Rando(), new Rando()];
     }
 
     setPlayers(playerArray) {
@@ -13,28 +13,49 @@ class Coach {
         this.opponent = opp;
     }
 
+    // competes all players against a single opponent x times each
     train(iterations) {
+
         iterations = iterations || 1000;
 
-        for(var p = 0; p < this.players.length; p++) {
-            var player = this.players
-        }
-
         var opp = this.opponent;
-        var total = {
-            X: 0,
-            O: 0,
-            tie: 0
-        }
         this.players.forEach(function(player){
-            for (var i = 0; i < iterations; i++) {
-                var result = Game.play([opp, player]);
-                total.X   += result.winner === 0 ? 1 : 0;
-                total.O   += result.winner === 1 ? 1 : 0;
-                total.tie += result.winner === undefined ? 1 : 0;
-                console.log(result);
+
+            var scorecard = {
+                score: 0,
+                win:  0,
+                loss: 0,
+                tie:  0
             }
+
+            for (var i = 0; i < iterations; i++) {
+
+                // TODO: swap sides occasionally
+                var result = Game.play([opp, player]);
+                scorecard.win  += result.winner === 0 ? 1 : 0;
+                scorecard.loss += result.winner === 1 ? 1 : 0;
+                scorecard.tie  += result.winner === undefined ? 1 : 0;
+            }
+
+            player.scorecard = scorecard;
+
+            // overall score
+            scorecard.score = Coach.scorePlayer(scorecard);
+
         });
-        console.log(total);
+    }
+
+    // scores a player based on performance
+    static scorePlayer( player ) {
+        return player.scorecard.win * 100 +
+            player.scorecard.tie * 50;
+    }
+
+    // sorts player array and returns top x
+    topPlayers(howMany) {
+        howMany = howMany || 2;
+        return this.players.sort(function(a,b){
+            return b.scorecard.score - a.scorecard.score;
+        }).slice(0,howMany);
     }
 }
