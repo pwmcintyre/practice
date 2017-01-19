@@ -28,6 +28,30 @@ class Neuro extends Player {
         this.network = new NeuralNet(new Array(18),9);
     }
     getRecommendations (availableMoves, board) {
-        throw new Error("Not implemented");
+        // look at the board
+        var i = board.playerBoardToArray();
+        this.network.setInputs(i);
+
+        // think about it
+        this.network.update();
+
+        // get ideas
+        var o = this.network.getOutputs();
+
+        // take the ones that make sense (available)
+        var recommendations = o.map(function(v,i,a){
+            return {
+                positionIndex: i,
+                position: (1 << i),
+                score: v
+            }
+        }).sort(function(a,b){
+            return a.score - b.score
+        }).filter(function(r){
+            return availableMoves.indexOf(r.position) >= 0;
+        });
+
+        // return the best idea
+        return recommendations[0].position;
     }
 }

@@ -2,7 +2,7 @@ class Coach {
 
     constructor(players, opp) {
         this.opponent = opp || new Rando();
-        this.players = players || [new Rando(), new Rando()];
+        this.players = players || [...new Array(10)].map(() => new Neuro() );
     }
 
     setPlayers(playerArray) {
@@ -40,8 +40,9 @@ class Coach {
             player.scorecard = scorecard;
 
             // overall score
-            scorecard.score = Coach.scorePlayer(scorecard);
+            player.scorecard.score = Coach.scorePlayer(player);
 
+            console.log( player.scorecard, player );
         });
     }
 

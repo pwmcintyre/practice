@@ -9,8 +9,8 @@ class Game {
         var moves = t.getAvailableMoves();
 
         while ( !done && moves.length ) {
-            var board = t.playerBoardToArray();
-            var move = players[t.turn].getRecommendations(moves, board);
+
+            var move = players[t.turn].getRecommendations(moves, t);
 
             done = t.takeTurn(move);
 
