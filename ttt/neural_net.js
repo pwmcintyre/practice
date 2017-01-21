@@ -17,20 +17,14 @@ class NeuralNet {
 
         // expecting dna to be a string of hex
         // if it's too short, fill it out
-        dns = dna || '';
-
-
-
-        // TODO this doesn't work
-        this.weights = this.weights.split('').map(function(a,b){return parseInt(a,16)||0});
-        for (var i = this.weights.length; i <  this.synapseCount; i++) {
-            this.weights.push( NeuralNet.randomWeight() );
-        }
-        this.weights = this.weights.map(function(a,b){ return a });
+        this.dna = dna || NeuralNet.randomDNA( this.synapseCount );
+        if (this.dna < this.synapseCount * NeuralNet.DNA_PRECISION)
+            throw new Error( "Not enough DNA" );
 
         // build layers
         // this includes input and output layer
         this.layers = new Array();
+        var weights = NeuralNet.decodeDNA( this.dna );
         for (var i = 0; i < this.options.layers.length; i++) {
             this.layers.push([]);
             for (var j = 0; j < this.options.layers[i]; j++) {
@@ -43,7 +37,7 @@ class NeuralNet {
                 
                 // from the weights list,
                 // pull off enough for the previous layer
-                var w = this.weights.splice(0, prevLayer.length);
+                var w = weights.splice(0, prevLayer.length);
 
                 // if inputs layer, take inputs value
                 var v = i ? this.inputs[j] : 0;
