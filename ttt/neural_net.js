@@ -67,6 +67,53 @@ class NeuralNet {
         }
     }
 
+    getDNA() {
+        var d = '';
+        // iterate over each node
+        // excluding input layer
+        for (var i = 1; i < this.layers.length; i++) {
+            for (var j = 0; j < this.layers[i].length; j++) {
+                var w = this.layers[i][j].weights;
+                for (var k = 0; k < w.length; k++) {
+                    d += NeuralNet.encode(k);
+                }
+            }
+        }
+    }
+
+    static get DNA_BASE() { return 36 }
+    static get DNA_PRECISION() { return 2 }
+    static get DNA_RANGE() { return 1295 } // Base ^ precision - 1
+    
+    static decode(a) {
+        // decode
+        a = parseInt(a, NeuralNet.DNA_BASE);
+
+        // reduce to fraction of base
+        a = a / NeuralNet.DNA_RANGE;
+
+        // expand to net range
+        a = (a * NeuralNet.WEIGHT_RANGE) + NeuralNet.WEIGHT_MIN;
+
+        return a;
+    }
+    static encode(a) {
+        
+        // reduce to a fraction
+        a = (a - NeuralNet.WEIGHT_MIN) / NeuralNet.WEIGHT_RANGE;
+
+        // expand to base
+        a *= NeuralNet.DNA_RANGE
+
+        // round
+        a = Math.round( a );
+
+        // encode and pad
+        a =  ( "0" + a.toString(NeuralNet.DNA_BASE) ).slice(-2);
+
+        return a;
+    }
+
     update () {
         // iterate over each node
         // excluding input layer
