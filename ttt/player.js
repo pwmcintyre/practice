@@ -52,7 +52,7 @@ class Neuro extends Player {
     }
     
     static get PROBABILITY_OF_MUTATION () { return 0.95; }
-    static mate (a, b, count) {
+    mate (a, b, count) {
 
         var length = Math.max(a.network.dna.length, b.network.dna.length);
 

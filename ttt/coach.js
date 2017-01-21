@@ -3,6 +3,8 @@ class Coach {
     constructor(players, opp) {
         this.opponent = opp || new Rando();
         this.players = players || [...new Array(10)].map(() => new Neuro() );
+        this.top = [];
+        this.generations = [];
     }
 
     setPlayers(playerArray) {
@@ -13,8 +15,19 @@ class Coach {
         this.opponent = opp;
     }
 
+    train(generations) {
+        for (var generation = 0; generation < generations; generation++) {
+
+            this.testPlayers();
+            this.nextGeneration();
+
+            console.log( "Best of generation `generation`: ",  this.generations[this.generations.length-1][0].scorecard );
+            console.log( "Best ever: ", this.top[0].scorecard, this.top[0].scorecard.moves );
+        }
+    }
+
     // competes all players against a single opponent x times each
-    train(iterations) {
+    testPlayers(iterations) {
 
         iterations = iterations || 1000;
 
@@ -25,37 +38,55 @@ class Coach {
                 score: 0,
                 win:  0,
                 loss: 0,
-                tie:  0
+                tie:  0,
+                moves: {
+                    min: Infinity,
+                    avg: 0,
+                    max: 0,
+                    count: 0
+                }
             }
 
             for (var i = 0; i < iterations; i++) {
 
                 // TODO: swap sides occasionally
-                var result = Game.play([opp, player]);
+                var result = Game.play([player, opp]);
                 scorecard.win  += result.winner === 0 ? 1 : 0;
                 scorecard.loss += result.winner === 1 ? 1 : 0;
                 scorecard.tie  += result.winner === undefined ? 1 : 0;
+                scorecard.moves.count += result.turnsToWin;
+                scorecard.moves.min =  Math.min(scorecard.moves.min, result.turnsToWin);
+                scorecard.moves.max =  Math.max(scorecard.moves.max, result.turnsToWin);
             }
+
+            scorecard.moves.avg = scorecard.moves.count / iterations;
 
             player.scorecard = scorecard;
 
             // overall score
             player.scorecard.score = Coach.scorePlayer(player);
 
-            console.log( player.scorecard, player );
+            // console.log( player.scorecard, player );
         });
     }
 
+    // breeds the top players
     nextGeneration() {
         
-        var top = shuffle( this.topPlayers(2) );
-        var newPlayers = [];
+        // get the top x players and save them
+        var top = this.topPlayers(2);
+        this.generations.push(top);
+        this.top.push(...top);
+        this.top = this.top.sort(sortPlayers);
+
+        // shuffle them
+        shuffle( top );
 
         // use player length to keep same population
-        for (var i = 0; i < this.players.length; i++) {
-            newPlayers.push( Player.mate(top[i], top[(i+1)%top.length]) );
-        }
+        // TODO: make work for more than 2 survivors
+        var newPlayers = top[0].mate(top[0], top[1], this.players.length);
 
+        // save
         this.players = newPlayers;
     }
 
@@ -68,10 +99,13 @@ class Coach {
     // sorts player array and returns top x
     topPlayers(howMany) {
         howMany = howMany || 2;
-        return this.players.sort(function(a,b){
-            return b.scorecard.score - a.scorecard.score;
-        }).slice(0,howMany);
+        var top = this.players.sort(sortPlayers).slice(0,howMany);
+        return top;
     }
+}
+
+function sortPlayers (a,b){
+    return b.scorecard.score - a.scorecard.score;
 }
 
 function shuffle(a) {
