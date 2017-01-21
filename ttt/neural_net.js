@@ -1,6 +1,6 @@
 
 class NeuralNet {
-    constructor (inputs, outputs, options, weights) {
+    constructor (inputs, outputs, options, dna) {
 
         this.inputs = inputs || new Array(18);
         this.outputs = outputs || 9;
@@ -15,9 +15,11 @@ class NeuralNet {
                 this.options.layers[i];
         }
 
-        // expecting weights to be a string of hex
+        // expecting dna to be a string of hex
         // if it's too short, fill it out
-        this.weights = weights || '';
+        dns = dna || '';
+
+
 
         // TODO this doesn't work
         this.weights = this.weights.split('').map(function(a,b){return parseInt(a,16)||0});
@@ -84,6 +86,21 @@ class NeuralNet {
     static get DNA_BASE() { return 36 }
     static get DNA_PRECISION() { return 2 }
     static get DNA_RANGE() { return 1295 } // Base ^ precision - 1
+
+    static decodeDNA(dna) {
+        var weights = [];
+        for (var i = 0; i < dna.length; i += NeuralNet.DNA_PRECISION) {
+            var a = dna.substr(i, NeuralNet.DNA_PRECISION)
+            weights.push( NeuralNet.decode(a) );
+        }
+        return weights;
+    }
+
+    static encodeDNA(weights) {
+        var dna = '';
+        weights.forEach( w => dna += NeuralNet.encode(w) );
+        return dna;
+    }
     
     static decode(a) {
         // decode
