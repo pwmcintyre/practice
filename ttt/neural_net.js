@@ -60,7 +60,7 @@ class NeuralNet {
     static get WEIGHT_RANGE() { return NeuralNet.WEIGHT_MAX - NeuralNet.WEIGHT_MIN }
 
     static randomWeight() {
-        return Math.round( NeuralNet.WEIGHT_MIN + Math.random() * NeuralNet.WEIGHT_RANGE );
+        return NeuralNet.WEIGHT_MIN + Math.random() * NeuralNet.WEIGHT_RANGE;
     }
 
     setInputs (inputs) {
@@ -86,6 +86,15 @@ class NeuralNet {
     static get DNA_BASE() { return 36 }
     static get DNA_PRECISION() { return 2 }
     static get DNA_RANGE() { return 1295 } // Base ^ precision - 1
+
+    static randomDNA(length) {
+        length *= NeuralNet.DNA_PRECISION;
+        var dna = '';
+        while (dna.length < length) {
+            dna += NeuralNet.encode( NeuralNet.randomWeight() );
+        }
+        return dna;
+    }
 
     static decodeDNA(dna) {
         var weights = [];
