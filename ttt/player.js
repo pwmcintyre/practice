@@ -3,7 +3,7 @@ class Player {
     getRecommendations (availableMoves, board) {
         throw new Error("Not implemented");
     }
-    static mate (a, b, count) {
+    static mate (a, b) {
         throw new Error("Not implemented");
     }
 }
@@ -13,19 +13,15 @@ class Rando extends Player {
         var r = Math.floor(Math.random()*availableMoves.length);
         return availableMoves[r];
     }
-    static mate (a, b, count) {
-        var children = [];
-        for (var i = 0; i < count; i++){
-            children.push( new Rando() );
-        }
-        return children;
+    static mate (a, b) {
+        return new Rando();
     }
 }
 
 class Neuro extends Player {
     constructor() {
         super();
-        this.network = new NeuralNet(new Array(18),9);
+        this.network = new NeuralNet({inputs:18, outputs:9});
     }
     getRecommendations (availableMoves, board) {
         // look at the board
@@ -53,5 +49,9 @@ class Neuro extends Player {
 
         // return the best idea
         return recommendations[0].position;
+    }
+    
+    static mate (a, b) {
+        return new Neuro(); // TODO
     }
 }

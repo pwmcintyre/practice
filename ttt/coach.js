@@ -46,6 +46,19 @@ class Coach {
         });
     }
 
+    nextGeneration() {
+        
+        var top = shuffle( this.topPlayers(2) );
+        var newPlayers = [];
+
+        // use player length to keep same population
+        for (var i = 0; i < this.players.length; i++) {
+            newPlayers.push( Player.mate(top[i], top[(i+1)%top.length]) );
+        }
+
+        this.players = newPlayers;
+    }
+
     // scores a player based on performance
     static scorePlayer( player ) {
         return player.scorecard.win * 100 +
@@ -58,5 +71,12 @@ class Coach {
         return this.players.sort(function(a,b){
             return b.scorecard.score - a.scorecard.score;
         }).slice(0,howMany);
+    }
+}
+
+function shuffle(a) {
+    for (let i = a.length; i; i--) {
+        let j = Math.floor(Math.random() * i);
+        [a[i - 1], a[j]] = [a[j], a[i - 1]];
     }
 }

@@ -1,18 +1,26 @@
 
 class NeuralNet {
-    constructor (inputs, outputs, options, dna) {
+    constructor (options, dna) {
 
-        this.inputs = inputs || new Array(18);
-        this.outputs = outputs || 9;
-        this.options = options || {
-            layers: [this.inputs.length, 20, this.outputs]
+        this.options = Object.assign(options, {
+            inputs: 18,
+            outputs: 9,
+            hiddenLayers: 2,
+            layerDepth: 20
+        });
+
+        // establish structure
+        var structure = [this.options.inputs]; // first layer is the input layer
+        for (var i = 0; i < this.options.hiddenLayers; i++) {
+            structure.push( this.options.layerDepth );
         }
+        structure.push( this.options.outputs ); // last layer is for outputs
 
         // calculate how many weights we'll need
         this.synapseCount = 0
-        for (var i = 1; i < this.options.layers.length; i++) {
-            this.synapseCount += this.options.layers[i-1] *
-                this.options.layers[i];
+        for (var i = 1; i < structure.length; i++) {
+            this.synapseCount += structure[i-1] *
+                structure[i];
         }
 
         // expecting dna to be a string of hex
@@ -25,9 +33,10 @@ class NeuralNet {
         // this includes input and output layer
         this.layers = new Array();
         var weights = NeuralNet.decodeDNA( this.dna );
-        for (var i = 0; i < this.options.layers.length; i++) {
+
+        for (var i = 0; i < structure.length; i++) {
             this.layers.push([]);
-            for (var j = 0; j < this.options.layers[i]; j++) {
+            for (var j = 0; j < structure[i]; j++) {
                 // hidden layers start with no value
                 // and have inputs from the previous layer
                 // and are given weights
@@ -40,7 +49,7 @@ class NeuralNet {
                 var w = weights.splice(0, prevLayer.length);
 
                 // if inputs layer, take inputs value
-                var v = i ? this.inputs[j] : 0;
+                var v = 0;
 
                 var n = new Node(v, w, prevLayer);
                 this.layers[i].push(n);
