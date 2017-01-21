@@ -19,9 +19,9 @@ class Rando extends Player {
 }
 
 class Neuro extends Player {
-    constructor() {
+    constructor(dna) {
         super();
-        this.network = new NeuralNet({inputs:18, outputs:9});
+        this.network = new NeuralNet({inputs:18, outputs:9}, dna);
     }
     getRecommendations (availableMoves, board) {
         // look at the board
@@ -51,7 +51,35 @@ class Neuro extends Player {
         return recommendations[0].position;
     }
     
-    static mate (a, b) {
-        return new Neuro(); // TODO
+    static get PROBABILITY_OF_MUTATION () { return 0.95; }
+    static mate (a, b, count) {
+
+        var length = Math.max(a.network.dna.length, b.network.dna.length);
+
+        var children = [];
+        while (children.length < count) {
+
+            var random = NeuralNet.randomWeight(length);
+            
+            var dna = '';
+            while (dna.length < length) {
+
+                if ( Math.random() > NeuralNet.PROBABILITY_OF_MUTATION ) {
+                    // mutate
+                    dna += random.substr(dna.length, NeuralNet.DNA_PRECISION);
+                } else {
+                    // random from parents
+                    if ( Math.random() > 0.5 ) {
+                        dna += a.network.dna.substr(dna.length, NeuralNet.DNA_PRECISION);
+                    } else {
+                        dna += b.network.dna.substr(dna.length, NeuralNet.DNA_PRECISION);
+                    }
+                }
+            }
+
+            children.push( new Neuro(dna) );
+
+        }
+        return children;
     }
 }
