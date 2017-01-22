@@ -46,87 +46,26 @@
         </ul>
         <script>
 
-// extend console.log to print to HTML
-(function () {
-    var old = console.log;
-    var logger = document.getElementById('log');
-    console.log = function (message) {
-        old.apply( this, arguments ); 
-        if (typeof message == 'object') {
-            message = (JSON && JSON.stringify ? JSON.stringify(message) : message);
-        } else if (message && message.replace) {
-            message = message.replace(/\n/g,'<br/>');
-        }
-        var node = document.createElement("li");
-        node.innerHTML = message;
-        logger.appendChild(node);
-    }
-})();
+// // extend console.log to print to HTML
+// (function () {
+//     var old = console.log;
+//     var logger = document.getElementById('log');
+//     console.log = function (message) {
+//         old.apply( this, arguments ); 
+//         if (typeof message == 'object') {
+//             message = (JSON && JSON.stringify ? JSON.stringify(message) : message);
+//         } else if (message && message.replace) {
+//             message = message.replace(/\n/g,'<br/>');
+//         }
+//         var node = document.createElement("li");
+//         node.innerHTML = message;
+//         logger.appendChild(node);
+//     }
+// })();
 
 
 var coach = new Coach();
-var draw = new Draw(coach);
-
-
-
-
-
-function update () {
-    var board = t.toString().replace(/\n/g,'<br/>');;
-    document.getElementById('board').innerHTML = board;
-}
-
-function move (input) {
-    var input = document.getElementById('move').value;
-    var move = parseInt(input, 2);
-    console.log( move.toString(2) );
-
-    if ( t.takeTurn(move) )
-        console.log(`player ${TTT.DRAW.PLAYERS[t.turn]} wins!!!` )
-    else
-        console.log(`it's  player ${TTT.DRAW.PLAYERS[t.turn]}'s turn` )
-
-    
-    
-    update();
-    updateNN();
-    print();
-}
-
-function print () {
-    n.toString();
-    var arr = n.getOutputs();
-    var recommendations = arr.map(function(v,i,a){
-        return {
-            positionIndex: i,
-            position: (1 << i),
-            score: v
-        }
-    }).sort(function(a,b){
-        return b.score - a.score
-    });
-    var avail = t.getAvailableMoves();
-    recommendations.forEach(function(r){
-        // is move valid?
-        var a = avail.indexOf(r.position) >= 0 ? ' ***** available' : '';
-        console.log(`Next move ${r.positionIndex} (${r.position.toString(2)}) with ${r.score}${a}`);
-    })
-}
-
-function updateNN () {
-    n.setInputs( t.playerBoardToArray() );
-    n.update();
-}
-
-// var t = new TTT();
-// update();
-
-// var inputs = t.playerBoardToArray();
-// var outputs = 9;
-
-// var n = new NeuralNet(inputs, outputs);
-
-// print();
+// var draw = new Draw(coach);
 
 
 
