@@ -75,20 +75,6 @@ class NeuralNet {
         }
     }
 
-    getDNA() {
-        var d = '';
-        // iterate over each node
-        // excluding input layer
-        for (var i = 1; i < this.layers.length; i++) {
-            for (var j = 0; j < this.layers[i].length; j++) {
-                var w = this.layers[i][j].weights;
-                for (var k = 0; k < w.length; k++) {
-                    d += NeuralNet.encode(k);
-                }
-            }
-        }
-    }
-
     static get DNA_BASE() { return 36 }
     static get DNA_PRECISION() { return 2 }
     static get DNA_RANGE() { return 1295 } // Base ^ precision - 1
@@ -104,9 +90,10 @@ class NeuralNet {
 
     static decodeDNA(dna) {
         var weights = [];
+        var gene;
         for (var i = 0; i < dna.length; i += NeuralNet.DNA_PRECISION) {
-            var a = dna.substr(i, NeuralNet.DNA_PRECISION)
-            weights.push( NeuralNet.decode(a) );
+            gene = dna.substr(i, NeuralNet.DNA_PRECISION)
+            weights.push( NeuralNet.decode(gene) );
         }
         return weights;
     }
@@ -203,10 +190,10 @@ class Node {
                 var sum = 0;
 
                 for(var i = 0; i < this.inputs.length; i++) {
-                    var v = this.inputs[i].value;
-                    var w = this.weights[i];
+                    // var v = this.inputs[i].value;
+                    // var w = this.weights[i];
                     
-                    sum += w*v;
+                    sum += this.inputs[i].value * this.weights[i];
                 }
 
                 sum = 1 / ( 1 + Math.exp( -sum ) );

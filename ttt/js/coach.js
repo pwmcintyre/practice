@@ -4,10 +4,10 @@ class Coach {
 
     constructor(players, opp) {
         this.opponent = opp || new Rando();
-        this.players = players || Coach.findRandomPlayers(20);
+        this.players = players || Coach.findRandomPlayers(10);
         this.top = [];
         this.generations = [];
-        this.workers = [...new Array(5)].map(() => new Worker('js/coach_worker.js') );
+        this.workers = new Workers();
     }
 
     static findRandomPlayers (howMany) {
@@ -44,9 +44,7 @@ class Coach {
             
             self.benchmark (self);
 
-            // console.log( `Best of generation ${current}: `,  self.generations[self.generations-1].scorecard );
-            console.log( "Best ever: ", self.top[0].scorecard );
-            console.log( `continuing for another ${generations - current} generations` );
+            console.log( `Gen: ${current} (${generations - current})`, self.top[0].scorecard );
 
             if (current < generations) {
                 self.nextGeneration();
@@ -60,49 +58,30 @@ class Coach {
 
         iterations = iterations || 1000;
 
-        var promises = [];
-        var workers = this.workers;
-
-        // Each player
-        this.players.forEach(function(player, playerIdx){
-            
-            // create a promise, push to stack
-            promises.push( new Promise( function(resolve, reject) {
-
-                    // create worker thread
-                    // var worker = new Worker('js/coach_worker.js');
-                    if (workers.length <= playerIdx) workers.push( new Worker('js/coach_worker.js') );
-                    var worker = workers[playerIdx];
-
-                    // add callback
-                    worker.onmessage = function(e) {
-                        // console.log(e.data.scorecard, e.data.dna.substr(0,10));
-                        resolve(e.data);
-                    };
-
-                    // begin
-                    worker.postMessage({
-                        dna: player.dna,
-                        iterations: iterations
-                    });
-                }
-            ));
-
+        var jobs = this.players.map(function(player, playerIdx){
+            return {
+                dna: player.dna,
+                iterations: iterations
+            }
         });
 
-        // when all workers are done
-        Promise.all(promises).then(results => { 
+        var self = this;
+        this.workers.process(jobs, function(results){
 
             // save players
-            this.players = results;
+            self.players = results;
 
             // get the top x players
-            var top = this.topPlayers(2);
+            var top = self.topPlayers(2);
 
             // save
-            // this.generations.push(top[0]); // too much memory!
-            this.top.push(...top);
-            this.top = this.top.sort(sortPlayers).slice(0,10);
+            // self.generations.push(top[0]); // too much memory!
+            self.top.push(...top);
+            self.top = self.top.sort(sortPlayers).slice(0,10);
+
+            // cleanup
+            top = undefined;
+            results = undefined;
 
             callback && callback();
         });
@@ -124,7 +103,8 @@ class Coach {
         var newPlayers = Neuro.mate(top[0].dna, top[1].dna, oldCount);
 
         // Add a dash of new players
-        newPlayers = newPlayers.concat( Coach.findRandomPlayers( newCount ) );
+        newPlayers = newPlayers.concat(
+            Coach.findRandomPlayers( newCount ) );
 
         // save
         this.players = newPlayers;

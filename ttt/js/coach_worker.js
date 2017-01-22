@@ -8,6 +8,8 @@ importScripts(
         "coach.js"
 );
 
+var swap = false;
+
 onmessage = function(e) {
 
     var dna = e.data.dna;
@@ -32,8 +34,12 @@ onmessage = function(e) {
     // run test
     for (var i = 0; i < iterations; i++) {
 
-        // TODO: swap sides occasionally
-        var result = Game.play([player, opponent]);
+        // swap sides
+        var order = swap && i % 2 === 0 ? [player, opponent] : [opponent,player];
+        
+        // play
+        var result = Game.play(order);
+
         scorecard.win  += result.winner === 0 ? 1 : 0;
         scorecard.loss += result.winner === 1 ? 1 : 0;
         scorecard.tie  += result.winner === undefined ? 1 : 0;

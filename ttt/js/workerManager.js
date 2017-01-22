@@ -7,7 +7,7 @@ class Workers {
 
         // default to number of cores available
         num = num || navigator.hardwareConcurrency;
-        console.log( `New worker with ${num} threads` );
+        // console.log( `New worker with ${num} threads` );
 
         this.queue = [];
         this.results = [];
@@ -24,7 +24,7 @@ class Workers {
 
             w.worker.onmessage = function(e) {
 
-                console.log( `worker ${w.id} finished` );
+                // console.log( `worker ${w.id} finished` );
 
                 // save results
                 parent.results.push(e.data);
@@ -35,7 +35,7 @@ class Workers {
 
             w.work = function() {
 
-                console.log( `worker ${w.id} starting` );
+                // console.log( `worker ${w.id} starting` );
 
                 if (parent.queue.length) {
 
@@ -47,7 +47,7 @@ class Workers {
 
                 } else {
 
-                    console.log( `worker ${w.id} idle` );
+                    // console.log( `worker ${w.id} idle` );
 
                     // no work, go back to idle
                     parent.idle.push(w);
@@ -82,8 +82,15 @@ class Workers {
     done () {
 
         // if no queue and workers are idle, done
-        if( !this.queue.length && this.workers.length == this.idle.length )
-            this.callback( this.results );
+        if( !this.queue.length && this.workers.length == this.idle.length ) {
+
+            // cleanup
+            var r = this.results;
+            this.results = [];
+
+            // respond
+            this.callback( r );
+        }
     }
 
     begin () {

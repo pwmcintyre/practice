@@ -79,11 +79,13 @@ class Neuro extends Player {
         var length = Math.max(a.length, b.length);
 
         var children = [];
+        var random, dna;
+        
         while (children.length < count) {
 
-            var random = NeuralNet.randomWeight(length);
-            
-            var dna = '';
+            random = NeuralNet.randomWeight(length);
+            dna = '';
+
             while (dna.length < length) {
 
                 if ( Math.random() > NeuralNet.PROBABILITY_OF_MUTATION ) {
