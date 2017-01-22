@@ -143,20 +143,21 @@ class TTT {
   }
 
   playerBoardToString() {
-    function padLeft(nr, n, str){
-      return Array(n-String(nr).length+1).join(str||'0')+nr;
-    }
-
-    var a = '';
-    for (var i = 0; i < this.players.length; i++) {
-      a = a + padLeft( this.players[i][0].toString(2), TTT.MAX_MOVES );
-    }
-
-    return a;
+    return this.playerBoardToArray.join('');
   }
 
+  // produce an array of all player boards
   playerBoardToArray() {
-    return this.playerBoardToString().split('');
+
+    var a = [];
+    for (var i = 0; i < this.players.length; i++) {
+      var board = this.players[i][0];
+      while (a.length < TTT.MAX_MOVES) {
+        a.push( board & 1 === 1 );
+        board >>= 1;
+      }
+    }
+    return a;
   }
 
 };
