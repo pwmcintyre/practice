@@ -2,9 +2,13 @@ class Coach {
 
     constructor(players, opp) {
         this.opponent = opp || new Rando();
-        this.players = players || [...new Array(10)].map(() => new Neuro() );
+        this.players = players || Coach.findRandomPlayers(20);
         this.top = [];
         this.generations = [];
+    }
+
+    static findRandomPlayers (howMany) {
+        return [...new Array(howMany)].map(() => new Neuro() )
     }
 
     setPlayers(playerArray) {
@@ -21,7 +25,7 @@ class Coach {
             this.testPlayers();
             this.nextGeneration();
 
-            console.log( "Best of generation `generation`: ",  this.generations[this.generations.length-1][0].scorecard );
+            console.log( `Best of generation ${this.generations.length}: `,  this.generations[this.generations.length-1][0].scorecard );
             console.log( "Best ever: ", this.top[0].scorecard, this.top[0].scorecard.moves );
         }
     }
@@ -71,10 +75,19 @@ class Coach {
     }
 
     // breeds the top players
+    static get ADD_RANDOM_TO_GENERATION() { return 0.1 }
     nextGeneration() {
         
-        // get the top x players and save them
+        // get the top x players
         var top = this.topPlayers(2);
+
+        // purge the network, keep the dna
+        top.forEach(function (x) {
+            x.network.layers = undefined;
+            delete x.network.layers;
+        });
+
+        // save
         this.generations.push(top);
         this.top.push(...top);
         this.top = this.top.sort(sortPlayers);
@@ -85,6 +98,9 @@ class Coach {
         // use player length to keep same population
         // TODO: make work for more than 2 survivors
         var newPlayers = top[0].mate(top[0], top[1], this.players.length);
+
+        // Add a dash of new players
+        newPlayers.concat( Coach.findRandomPlayers( Math.ceil(this.players.length * Coach.ADD_RANDOM_TO_GENERATION) ) );
 
         // save
         this.players = newPlayers;
