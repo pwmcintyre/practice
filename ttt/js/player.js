@@ -8,6 +8,22 @@ class Player {
     }
 }
 
+class Human extends Player {
+    getRecommendations (availableMoves, board) {
+        this.callback = callback;
+        this.availableMoves = availableMoves;
+        this.board = board;
+        
+        return this.move || 0;
+    }
+    makeMove(move){
+        this.move = move;
+    }
+    static mate (a, b) {
+        throw new Error("I can't help you");
+    }
+}
+
 class Rando extends Player {
     getRecommendations (availableMoves, board) {
         var r = Math.floor(Math.random()*availableMoves.length);
@@ -21,12 +37,15 @@ class Rando extends Player {
 class Neuro extends Player {
     constructor(dna) {
         super();
-        this.network = new NeuralNet({inputs:18, outputs:9}, dna);
+        this.dna = dna || "";
     }
     getRecommendations (availableMoves, board) {
+
+        if ( !this.network )
+            this.network = new NeuralNet({inputs:18, outputs:9}, this.dna);
+
         // look at the board
-        var i = board.playerBoardToArray();
-        this.network.setInputs(i);
+        this.network.setInputs( board.playerBoardToArray() );
 
         // think about it
         this.network.update();
@@ -41,10 +60,10 @@ class Neuro extends Player {
                 position: (1 << i),
                 score: v
             }
-        }).sort(function(a,b){
-            return a.score - b.score
         }).filter(function(r){
             return availableMoves.indexOf(r.position) >= 0;
+        }).sort(function(a,b){
+            return a.score - b.score
         });
 
         // return the best idea
@@ -52,9 +71,9 @@ class Neuro extends Player {
     }
     
     static get PROBABILITY_OF_MUTATION () { return 0.95; }
-    mate (a, b, count) {
+    static mate (a, b, count) {
 
-        var length = Math.max(a.network.dna.length, b.network.dna.length);
+        var length = Math.max(a.length, b.length);
 
         var children = [];
         while (children.length < count) {
@@ -70,9 +89,9 @@ class Neuro extends Player {
                 } else {
                     // random from parents
                     if ( Math.random() > 0.5 ) {
-                        dna += a.network.dna.substr(dna.length, NeuralNet.DNA_PRECISION);
+                        dna += a.substr(dna.length, NeuralNet.DNA_PRECISION);
                     } else {
-                        dna += b.network.dna.substr(dna.length, NeuralNet.DNA_PRECISION);
+                        dna += b.substr(dna.length, NeuralNet.DNA_PRECISION);
                     }
                 }
             }
