@@ -1,5 +1,7 @@
+'use strict'
 
 class TTT {
+
 
   // All possible win scenarios
   static get WIN() { return [

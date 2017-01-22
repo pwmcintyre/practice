@@ -1,5 +1,7 @@
+'use strict'
 
 class Player {
+
     getRecommendations (availableMoves, board) {
         throw new Error("Not implemented");
     }
@@ -35,6 +37,7 @@ class Rando extends Player {
 }
 
 class Neuro extends Player {
+
     constructor(dna) {
         super();
         this.dna = dna || "";
@@ -70,7 +73,7 @@ class Neuro extends Player {
         return recommendations[0].position;
     }
     
-    static get PROBABILITY_OF_MUTATION () { return 0.95; }
+    static get PROBABILITY_OF_MUTATION () { return 0.8; }
     static mate (a, b, count) {
 
         var length = Math.max(a.length, b.length);

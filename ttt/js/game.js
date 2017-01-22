@@ -1,4 +1,7 @@
+'use strict';
+
 class Game {
+
     static play (players) {
         
         // new board

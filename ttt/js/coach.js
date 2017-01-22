@@ -1,3 +1,5 @@
+'use strict'
+
 class Coach {
 
     constructor(players, opp) {
@@ -5,7 +7,7 @@ class Coach {
         this.players = players || Coach.findRandomPlayers(20);
         this.top = [];
         this.generations = [];
-        this.workers = [...new Array(40)].map(() => new Worker('js/coach_worker.js') );
+        this.workers = [...new Array(5)].map(() => new Worker('js/coach_worker.js') );
     }
 
     static findRandomPlayers (howMany) {
@@ -36,18 +38,19 @@ class Coach {
     train(generations, current) {
 
         var self = this;
+        current = current || 0;
 
         this.testPlayers(null, function(results){
             
             self.benchmark (self);
 
-            console.log( `Best of generation ${self.generations.length}: `,  self.generations[self.generations.length-1][0].scorecard );
-            console.log( "Best ever: ", self.top[0].scorecard, self.top[0].scorecard.moves );
-            console.log( `continuing for another ${generations - self.generations.length} generations` );
+            // console.log( `Best of generation ${current}: `,  self.generations[self.generations-1].scorecard );
+            console.log( "Best ever: ", self.top[0].scorecard );
+            console.log( `continuing for another ${generations - current} generations` );
 
-            if (self.generations.length < generations) {
+            if (current < generations) {
                 self.nextGeneration();
-                self.train(generations, self.generations.length - 1);
+                self.train(generations, current + 1);
             }
         });
     }
@@ -68,6 +71,7 @@ class Coach {
 
                     // create worker thread
                     // var worker = new Worker('js/coach_worker.js');
+                    if (workers.length <= playerIdx) workers.push( new Worker('js/coach_worker.js') );
                     var worker = workers[playerIdx];
 
                     // add callback
@@ -96,11 +100,11 @@ class Coach {
             var top = this.topPlayers(2);
 
             // save
-            this.generations.push(top);
+            // this.generations.push(top[0]); // too much memory!
             this.top.push(...top);
-            this.top = this.top.sort(sortPlayers);
+            this.top = this.top.sort(sortPlayers).slice(0,10);
 
-            callback && callback(results);
+            callback && callback();
         });
     }
 

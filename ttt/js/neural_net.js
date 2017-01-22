@@ -1,12 +1,15 @@
+'use strict'
 
 class NeuralNet {
+
+
     constructor (options, dna) {
 
         this.options = Object.assign(options, {
             inputs: 18,
             outputs: 9,
             hiddenLayers: 2,
-            layerDepth: 20
+            layerDepth: 25
         });
 
         // establish structure
