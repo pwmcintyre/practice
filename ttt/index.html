@@ -18,6 +18,10 @@
             height:100%;
             width:100%;
         }
+        #canvasboard {
+            height: 400px;
+            width:  400px;
+        }
         ul#log { 
             display: flex;
             flex-direction: column-reverse;
@@ -40,7 +44,7 @@
             <button onclick="move()">move</button>
         </div>
         <div id="board">
-            <canvas id="canvas"></canvas>
+            <canvas id="canvasboard"></canvas>
         </div>
         <ul id="log">
 
@@ -67,6 +71,7 @@
 
 var coach = new Coach();
 // var draw = new Draw(coach);
+var draw = new DrawBoard()
 
 
 

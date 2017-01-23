@@ -1,17 +1,25 @@
 
 class Draw {
 
-	constructor ( coach ) {
-		this.coach = coach;
-		this.network = new DrawNeuro ( coach.players[0] );
-		this.board   = new DrawBoard ( new TTT() );
+	constructor ( ) {
+		this.coach   = null;
+		this.network = null;
+		this.board   = null;
 
 		this.init();
 		// this.start();
 	}
 
+	setCoach (player) {
+		this.coach = coac;;
+	}
+
 	setPlayer (player) {
-		this.network = player;
+		this.network = new DrawNeuro ( coach.top[0] );
+	}
+
+	resetBoard() {
+		this.board   = new DrawBoard ( new TTT() );
 	}
 
 	init() {
@@ -103,94 +111,149 @@ class Draw {
 
 class DrawBoard {
 	
-	constructor (board) {
-		this.board = board;
+	constructor ( game ) {
+		this.board;
+		this.game = game;
+
+		var a = new Human();
+		var b = new Neuro();
+		var game = new Game([a,b]);
+
+		this.init();
 	}
 
 	static get options () {
 		return {
 			size: 60,
-			padding: 5
+			padding: 2
 		}
 	}
 
-	draw ( container ) {
+	init() {
+
+		this.mouseTarget;	// the display object currently under the mouse, or being dragged
+		this.dragStarted;	// indicates whether we are currently in a drag operation
+		this.offset;
+		this.update = true;
+
+		// create stage and point it to the canvas:
+		this.canvas = document.getElementById("canvasboard");
+		this.stage = new createjs.Stage(this.canvas);
+
+		// enable touch interactions if supported on the current device:
+		createjs.Touch.enable(this.stage);
+
+		// enabled mouse over / out events
+		this.stage.enableMouseOver(10);
+		this.stage.mouseMoveOutside = true; // keep tracking the mouse even when it leaves the canvas
+
+		var self = this;
+		function resizeEvent (event) {
+			self.canvas.setAttribute('width', self.canvas.clientWidth);
+			self.canvas.setAttribute('height', self.canvas.clientHeight);
+			// self.reset();
+		};
+		resizeEvent();
+		window.onresize = resizeEvent;
+
+		// this.reset();
+		// createjs.Ticker.addEventListener("tick", this.tick, null, false, {self:this});
+
+		this.draw();
+
+		var self = this;
+		createjs.Ticker.addEventListener("tick", function(){
+			self.stage.update();
+		}, null, false, this);
+	}
+
+	draw ( ) {
+		
+		var board = new createjs.Container();
+		board.x = 20;
+		board.y = 20;
+		board.width = DrawBoard.options.size * 3;
+		board.height = DrawBoard.options.size * 3;
+		this.stage.addChild(board);
 
 		// Draw board
 		var shape = new createjs.Shape();
 		var g = shape.graphics;
 
-		g.setStrokeStyle(1);
+		g.setStrokeStyle(4);
 		g.beginStroke("#000000");
 
-		g.moveTo( (DrawBoard.options.size), 0 );
-		g.lineTo( (DrawBoard.options.size), (DrawBoard.options.size) * 3 );
-		g.moveTo( (DrawBoard.options.size) * 2, 0 );
-		g.lineTo( (DrawBoard.options.size) * 2, (DrawBoard.options.size) * 3 );
-		g.moveTo( 0, (DrawBoard.options.size) );
-		g.lineTo( (DrawBoard.options.size) * 3, (DrawBoard.options.size) );
-		g.moveTo( 0, (DrawBoard.options.size) * 2 );
-		g.lineTo( (DrawBoard.options.size) * 3, (DrawBoard.options.size) * 2 );
+		g.moveTo( (DrawBoard.options.size + DrawBoard.options.padding), 0 );
+		g.lineTo( (DrawBoard.options.size + DrawBoard.options.padding), (DrawBoard.options.size + DrawBoard.options.padding) * 3 );
+		g.moveTo( (DrawBoard.options.size + DrawBoard.options.padding) * 2, 0 );
+		g.lineTo( (DrawBoard.options.size + DrawBoard.options.padding) * 2, (DrawBoard.options.size + DrawBoard.options.padding) * 3 );
+		g.moveTo( 0, (DrawBoard.options.size + DrawBoard.options.padding) );
+		g.lineTo( (DrawBoard.options.size + DrawBoard.options.padding) * 3, (DrawBoard.options.size + DrawBoard.options.padding) );
+		g.moveTo( 0, (DrawBoard.options.size + DrawBoard.options.padding) * 2 );
+		g.lineTo( (DrawBoard.options.size + DrawBoard.options.padding) * 3, (DrawBoard.options.size + DrawBoard.options.padding) * 2 );
 
 		g.endStroke();
-		container.addChild(shape);
+		board.addChild(shape);
 
 		// little containers for each piece
 		var bitboard = 1;
 		for (var y = 0; y < 3; y++) {
 			for (var x = 0; x < 3; x++) {
 
-				var piece = new createjs.Container();
-				piece.x = (DrawBoard.options.size) * x;
-				piece.y = (DrawBoard.options.size) * y;
-				piece.width = (DrawBoard.options.size);
-				piece.height = (DrawBoard.options.size);
-				container.addChild(piece);
-
-				// X
 				var s = new createjs.Shape();
-				g = s.graphics;
 
-				g.setStrokeStyle(2);
-				g.beginStroke("#00f");
+				s.overColor = "#3281FF"
+				s.outColor = "#FF0000"
+				s.graphics.beginFill(s.outColor).drawRect(0, 0, DrawBoard.options.size, DrawBoard.options.size).endFill();
+				s.x = (DrawBoard.options.size + DrawBoard.options.padding) * x;
+				s.y = (DrawBoard.options.size + DrawBoard.options.padding) * y;
+				s.width  = DrawBoard.options.size;
+				s.height = DrawBoard.options.size;
 
-				g.moveTo( DrawBoard.options.padding, DrawBoard.options.padding );
-				g.lineTo( DrawBoard.options.size-DrawBoard.options.padding, DrawBoard.options.size-DrawBoard.options.padding );
-				g.moveTo( DrawBoard.options.size-DrawBoard.options.padding, DrawBoard.options.padding );
-				g.lineTo( DrawBoard.options.padding, DrawBoard.options.size-DrawBoard.options.padding );
+				s.on("rollover", handleMouseOver );
+				s.on("rollout",  handleMouseOut );
+				s.on("mousedown",  handleMouseDown );
 
-				g.endStroke();
-				piece.addChild(s);
+				board.addChild(s)
 
-				// O
-				s = new createjs.Shape();
-				g = s.graphics;
-
-				g.setStrokeStyle(2);
-				g.beginStroke("#f00");
-				g.drawCircle(DrawBoard.options.size/2, DrawBoard.options.size/2, DrawBoard.options.size/2-DrawBoard.options.padding);
-
-				g.endStroke();
-				piece.addChild(s);
-
-				piece.on("mousedown", function (evt, data) {
-					console.log("mousedown", data);
-				}, null, false, {bitboard:bitboard});
-
-				// piece.on("pressmove", function (evt) {
-				// 	console.log("pressmove");
-				// });
-
-				// piece.on("rollover", function (evt) {
-				// 	console.log("rollover");
-				// });
-
-				// piece.on("rollout", function (evt) {
-				// 	console.log("rollout");
-				// });
-
+				s.bitboard = bitboard;
+				s.hasPiece = false;
 				bitboard <<= 1;
 			}
+		}
+
+		function handleMouseDown(event) {
+			var target = event.target;
+			if (target.hasPiece) return;
+			target.hasPiece = true;
+				
+			target.graphics.clear();
+			g = target.graphics
+
+			g.setStrokeStyle(2);
+			g.beginStroke("#00f");
+
+			g.moveTo( DrawBoard.options.padding, DrawBoard.options.padding );
+			g.lineTo( DrawBoard.options.size-DrawBoard.options.padding, DrawBoard.options.size-DrawBoard.options.padding );
+			g.moveTo( DrawBoard.options.size-DrawBoard.options.padding, DrawBoard.options.padding );
+			g.lineTo( DrawBoard.options.padding, DrawBoard.options.size-DrawBoard.options.padding );
+
+			g.endStroke();
+		}
+
+		function handleMouseOver(event) {
+			var target = event.target;
+			if (target.hasPiece) return;
+			target.graphics.clear()
+				.beginFill(target.overColor)
+				.drawRect(0, 0, target.width, target.height)
+				.endFill();
+		}
+
+		function handleMouseOut(event) {
+			var target = event.target;
+			if (target.hasPiece) return;
+			target.graphics.clear();
 		}
 	}
 }
