@@ -8,17 +8,27 @@ importScripts(
         "coach.js"
 );
 
+// Declare global variables (global to this thread only)
+// This appears to prevent memory leaking
 var swap = false;
+var dna;
+var iterations;
+var player;
+var opponent;
+var scorecard;
+var order;
+var result;
+var i;
 
 onmessage = function(e) {
 
-    var dna = e.data.dna;
-    var iterations = e.data.iterations;
+    dna = e.data.dna;
+    iterations = e.data.iterations;
 
-    var player = new Neuro( dna );
-    var opponent = new Rando();
+    player = new Neuro( dna );
+    opponent = new Rando();
 
-    var scorecard = {
+    scorecard = {
         score: 0,
         win:  0,
         loss: 0,
@@ -32,13 +42,13 @@ onmessage = function(e) {
     }
 
     // run test
-    for (var i = 0; i < iterations; i++) {
+    for (i = 0; i < iterations; i++) {
 
         // swap sides
-        var order = swap && i % 2 === 0 ? [player, opponent] : [opponent,player];
+        order = swap && i % 2 === 0 ? [player, opponent] : [opponent,player];
         
         // play
-        var result = Game.play(order);
+        result = Game.play(order);
 
         scorecard.win  += result.winner === 0 ? 1 : 0;
         scorecard.loss += result.winner === 1 ? 1 : 0;
