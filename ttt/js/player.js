@@ -1,5 +1,14 @@
 'use strict'
 
+// var me = new Human()
+// var coach = new Coach();
+// coach.train(100)
+// coach.players = coach.topPlayers(10)
+// coach.setOpponent( coach.topPlayers(1)[0] )
+// var you = new Neuro( coach.topPlayers()[0].dna )
+// var game = (new Game()).with(me,you).play()
+// me.makeMove(1)
+
 class Player {
 
     getRecommendations (availableMoves, board) {
@@ -28,6 +37,9 @@ class Human extends Player {
         // save the callback for when human decides on a move
         this.makeMove = callback;
         this.board = board;
+        
+        console.log("It's your turn, human");
+        console.log(board.toString());
     }
     makeMove( move ){
         this.makeMove( move );
@@ -104,7 +116,7 @@ class Neuro extends Player {
         return recommendations[0].position;
     }
     
-    static get PROBABILITY_OF_MUTATION () { return 0.8; }
+    static get PROBABILITY_OF_MUTATION () { return 0.5; }
     static mate (a, b, count) {
 
         var length = Math.max(a.length, b.length);
@@ -114,12 +126,12 @@ class Neuro extends Player {
         
         while (children.length < count) {
 
-            random = NeuralNet.randomWeight(length);
+            random = NeuralNet.randomDNA(length);
             dna = '';
 
             while (dna.length < length) {
 
-                if ( Math.random() > NeuralNet.PROBABILITY_OF_MUTATION ) {
+                if ( Math.random() < Neuro.PROBABILITY_OF_MUTATION ) {
                     // mutate
                     dna += random.substr(dna.length, NeuralNet.DNA_PRECISION);
                 } else {

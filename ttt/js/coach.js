@@ -4,7 +4,7 @@ class Coach {
 
     constructor(players, opp) {
         this.opponent = opp || new Rando();
-        this.players = players || Coach.findRandomPlayers(10);
+        this.players = players || Coach.findRandomPlayers(20);
         this.top = [];
         this.generations = [];
         this.workers = new Workers();
@@ -35,20 +35,20 @@ class Coach {
         console.log(`Time since last benchmark: ${seconds}`);
     }
 
-    train(generations, current) {
+    train(generations, iterations, current) {
 
         var self = this;
         current = current || 0;
 
-        this.testPlayers(null, function(results){
+        this.testPlayers(iterations, function(results){
             
             self.benchmark (self);
 
-            console.log( `Gen: ${current} (${generations - current})`, self.top[0].scorecard );
+            console.log( `Gen: ${current} (-${generations - current}) with ${self.players.length} players`, self.top[0].scorecard );
 
             if (current < generations) {
                 self.nextGeneration();
-                self.train(generations, current + 1);
+                self.train(generations, iterations, current + 1);
             }
         });
     }
@@ -58,9 +58,11 @@ class Coach {
 
         iterations = iterations || 1000;
 
+        var self = this;
         var jobs = this.players.map(function(player, playerIdx){
             return {
                 dna: player.dna,
+                opponent: self.opponent && self.opponent.dna ? self.opponent.dna : null,
                 iterations: iterations
             }
         });
