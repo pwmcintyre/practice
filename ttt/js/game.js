@@ -7,7 +7,6 @@ class Game {
         // new board
         var t = new TTT();
 
-        // loop until game is done`
         var done = false;
         var moves = t.getAvailableMoves();
 
@@ -36,26 +35,50 @@ class Game {
         this.board = new TTT();
     }
 
+    reset() {
+        this.board = new TTT();
+        return this;
+    }
+
+    with( a, b) {
+        // validate players
+        if ( !a && !b)
+            throw new Error("Need two players");
+
+        this.players = [a,b];
+
+        return this;
+    }
+
+    // what to do one game finish
+    done( callback ) {
+        this.onDone = callback;
+        return this;
+    }
+
     // for async plays
-    play () {
+    play ( move, game ) {
 
-        var move = this.players[this.board.turn].getRecommendations(this.board.getAvailableMoves(), this.board);
-        if ( move ) {
+        var done = false;
+        var game = game || this;
 
-            var done = t.takeTurn(move);
-            if (done) {
-
-                // get winner
-                var winner = moves.length ? t.turn : undefined;
-                var turns = t.players[t.turn].length - 1;
-
-                return {
-                    game: t,
-                    winner: winner,
-                    turnsToWin: turns
-                };
-            }
+        // if move given, make it
+        if (move) {
+            var done = game.board.takeTurn(move);
         }
 
+        if ( !done ) {
+            // proceed play
+            var play = function(move) {
+                game.play(move, game);
+            }
+            game.players[game.board.turn].yourTurn( play, game.board );
+        } else {
+            // on game completion
+            game.onDone && game.onDone() ||
+                console.log( "winner", game.players[game.board.turn] );
+        }
+
+        return game;
     }
 }

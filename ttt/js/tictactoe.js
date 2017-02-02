@@ -2,7 +2,6 @@
 
 class TTT {
 
-
   // All possible win scenarios
   static get WIN() { return [
     0b111000000,
@@ -25,7 +24,6 @@ class TTT {
 
   // lets begin
   constructor() {
-    this.players = Array.from(Array(TTT.PLAYER_COUNT)).fill([0x000000000]);
     this.players = new Array(TTT.PLAYER_COUNT);
     for (var i = 0; i < this.players.length; i++){
       this.players[i] = [0]
@@ -45,14 +43,16 @@ class TTT {
     // ensure move is a power of 2 (only 1 bit set)
     if ((move & -move) !== move) return false;
 
-    // move is valid if there's no overlap with X or O's pieces
+    // move is valid if there's no overlap with any current pieces
     return ( this.board & move ) === 0;
   }
 
+  // push the new move
   static makeMove (board, move) {
-    board.unshift( board[0] |= move);
+    board.unshift( board[0] | move);
   }
 
+  // rotate players
   nextPlayer () {
     this.turn = (this.turn + 1) % TTT.PLAYER_COUNT;
   }
@@ -92,6 +92,7 @@ class TTT {
     })
   }
 
+  // return array of all valid moves
   getAvailableMoves () {
 
     var available = [];
@@ -105,6 +106,7 @@ class TTT {
     return available;
   }
 
+  // stringify the board to 2D ascii
   toString (history) {
 
     // check history is at least 1, at most the size of our history
@@ -148,7 +150,7 @@ class TTT {
     return this.playerBoardToArray.join('');
   }
 
-  // produce an array of all player boards
+  // return 1D array of current board pieces
   playerBoardToArray() {
 
     var a = [];

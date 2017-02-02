@@ -5,8 +5,14 @@ class Player {
     getRecommendations (availableMoves, board) {
         throw new Error("Not implemented");
     }
+    yourTurn( callback ) {
+        throw new Error("Not implemented");
+    }
     static mate (a, b) {
         throw new Error("Not implemented");
+    }
+    toString() {
+        return "Player";
     }
 }
 
@@ -18,11 +24,19 @@ class Human extends Player {
         
         return this.move || 0;
     }
-    makeMove(move){
-        this.move = move;
+    yourTurn( callback, board ) {
+        // save the callback for when human decides on a move
+        this.makeMove = callback;
+        this.board = board;
+    }
+    makeMove( move ){
+        this.makeMove( move );
     }
     static mate (a, b) {
         throw new Error("I can't help you");
+    }
+    toString() {
+        return "Human";
     }
 }
 
@@ -31,8 +45,20 @@ class Rando extends Player {
         var r = Math.floor(Math.random()*availableMoves.length);
         return availableMoves[r];
     }
+    yourTurn( callback, board ) {
+        // get all the moves
+        var moves = board.getAvailableMoves();
+
+        // make any ol' random valid move
+        var r = Math.floor(Math.random() * moves.length);
+
+        callback( moves[r] );
+    }
     static mate (a, b) {
         return new Rando();
+    }
+    toString() {
+        return "Random";
     }
 }
 
@@ -41,6 +67,11 @@ class Neuro extends Player {
     constructor(dna) {
         super();
         this.dna = dna || "";
+    }
+    yourTurn( callback, board ) {
+        var moves = board.getAvailableMoves();
+        var move = this.getRecommendations(moves, board);
+        callback( move );
     }
     getRecommendations (availableMoves, board) {
 
@@ -105,5 +136,8 @@ class Neuro extends Player {
 
         }
         return children;
+    }
+    toString() {
+        return "Neuro";
     }
 }
