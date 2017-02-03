@@ -114,7 +114,7 @@ class Coach {
 
     // scores a player based on performance
     static scorePlayer( scorecard ) {
-        return (scorecard.win * 100 + scorecard.tie * 45) * (4 - scorecard.moves.avg);
+        return (scorecard.win * 100 + scorecard.tie * 45) / scorecard.gamesPlayed;
     }
 
     // sorts player array and returns top x

@@ -58,6 +58,7 @@ onmessage = function(e) {
     }
 
     scorecard.moves.avg = scorecard.moves.count / e.data.iterations;
+    scorecard.gamesPlayed = e.data.iterations;
     scorecard.score = Coach.scorePlayer(scorecard);
 
     // post results
