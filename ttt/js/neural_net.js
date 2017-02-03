@@ -22,14 +22,16 @@ class NeuralNet {
         // calculate how many weights we'll need
         this.synapseCount = 0
         for (var i = 1; i < structure.length; i++) {
-            this.synapseCount += structure[i-1] *
-                structure[i];
+
+            // each node has one connection to each previous layer nodes
+            // plus each node has a bias
+            this.synapseCount += (structure[i-1] + 1) * structure[i];
         }
 
         // expecting dna to be a string of hex
         // if it's too short, fill it out
-        this.dna = dna || NeuralNet.randomDNA( this.synapseCount );
-        if (this.dna < this.synapseCount * NeuralNet.DNA_PRECISION)
+        this.dna = dna.length ? dna : NeuralNet.randomDNA( this.synapseCount );
+        if (this.dna.length < this.synapseCount * NeuralNet.DNA_PRECISION)
             throw new Error( "Not enough DNA" );
 
         // build layers
@@ -51,10 +53,13 @@ class NeuralNet {
                 // pull off enough for the previous layer
                 var w = weights.splice(0, prevLayer.length);
 
+                // one more weight for the bias
+                var bias = weights.splice(0, 1);
+
                 // if inputs layer, take inputs value
                 var v = 0;
 
-                var n = new Node(v, w, prevLayer);
+                var n = new Node(v, bias, w, prevLayer, null);
                 this.layers[i].push(n);
             }
         }
@@ -136,7 +141,7 @@ class NeuralNet {
     update () {
         // iterate over each node
         // excluding input layer
-        for (var i = 1; i < this.layers.length; i++) {
+        for (var i = 0; i < this.layers.length; i++) {
             for (var j = 0; j < this.layers[i].length; j++) {
                 this.layers[i][j].update();
             }
@@ -161,9 +166,9 @@ class NeuralNet {
 
 class Node {
 
-    constructor (value, weights, inputs, func) {
+    constructor (value, bias, weights, inputs, func) {
         this.value = value || 0;
-        this.bias = 0; // TODO!
+        this.bias = bias || 0;
         this.inputs = inputs || [];
         this.weights = weights || [];
         this.activation_function = func || Node.ACTIVATION_FUNCTIONS.logistic;
@@ -189,15 +194,16 @@ class Node {
 
                 var sum = 0;
 
-                for(var i = 0; i < this.inputs.length; i++) {
-                    // var v = this.inputs[i].value;
-                    // var w = this.weights[i];
-                    
-                    sum += this.inputs[i].value * this.weights[i];
+                // go through each node * weight
+                for(var i = 0; i < node.inputs.length; i++) {
+                    sum += node.inputs[i].value * node.weights[i];
                 }
 
+                sum += node.bias;
+
+                // sigmoid
                 sum = 1 / ( 1 + Math.exp( -sum ) );
-                // sum = Math.log( sum );
+
                 return sum;
             }
         }
