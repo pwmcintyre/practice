@@ -155,8 +155,8 @@ class TTT {
 
     var a = [];
     for (var i = 0; i < this.players.length; i++) {
-      var board = this.players[i][0];
-      while (a.length < TTT.MAX_MOVES) {
+      var board = this.players[(i + this.turn) % this.players.length][0];
+      while (a.length < TTT.MAX_MOVES*(i+1)) {
         a.push( board & 1 === 1 );
         board >>= 1;
       }
