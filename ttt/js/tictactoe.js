@@ -30,6 +30,7 @@ class TTT {
     }
     this.board = 0;
     this.turn = 0;
+    this.history = [];
   }
 
   // this collapses all players pieces
@@ -68,7 +69,10 @@ class TTT {
     TTT.makeMove( this.players[this.turn], move);
 
     // update board
-    this.updateBoard();    
+    this.updateBoard();
+
+    // add history
+    this.history.push( this.board );
     
     // check win
     if ( TTT.hasWon( this.players[this.turn][0] ) )

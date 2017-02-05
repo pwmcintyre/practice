@@ -4,7 +4,7 @@ class Coach {
 
     constructor(players, opp) {
         this.opponent = opp || new Rando();
-        this.players = players || Coach.findRandomPlayers(20);
+        this.players = players || Coach.findRandomPlayers(100);
         this.top = [];
         this.generations = [];
         this.workers = new Workers();
@@ -38,13 +38,13 @@ class Coach {
     train(generations, iterations, current) {
 
         var self = this;
-        current = current || 0;
+        current = current || 1;
 
         this.testPlayers(iterations, function(results){
             
             self.benchmark (self);
 
-            console.log( `Gen: ${current} (-${generations - current}) with ${self.players.length} players`, self.top[0].scorecard );
+            console.log( `Gen: ${current} (+${generations - current}) with ${self.players.length} players`, self.top[0].scorecard );
 
             if (current < generations) {
                 self.nextGeneration();

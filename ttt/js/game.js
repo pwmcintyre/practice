@@ -5,26 +5,26 @@ class Game {
     static play (players) {
         
         // new board
-        var t = new TTT();
+        var board = new TTT();
 
         var done = false;
-        var moves = t.getAvailableMoves();
+        var moves = board.getAvailableMoves();
 
         while ( !done && moves.length ) {
 
-            var move = players[t.turn].getRecommendations(moves, t);
+            var move = players[board.turn].getRecommendations(moves, board);
 
-            done = t.takeTurn(move);
+            done = board.takeTurn(move);
 
-            moves = t.getAvailableMoves();
+            moves = board.getAvailableMoves();
         }
 
         // get winner
-        var winner = moves.length ? t.turn : undefined;
-        var turns = t.players[t.turn].length - 1;
+        var winner = moves.length ? board.turn : undefined;
+        var turns = board.players[board.turn].length - 1;
 
         return {
-            game: t,
+            game: board,
             winner: winner,
             turnsToWin: turns
         };

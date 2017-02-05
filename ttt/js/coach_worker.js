@@ -20,6 +20,7 @@ var order;
 var pos;
 var result;
 var i;
+var historyMap = {};
 
 onmessage = function(e) {
 
@@ -36,8 +37,11 @@ onmessage = function(e) {
             avg: 0,
             max: 0,
             count: 0
-        }
+        },
+        wins: []
     }
+
+    historyMap = {};
 
     // run test
     for (i = 0; i < e.data.iterations; i++) {
@@ -49,9 +53,27 @@ onmessage = function(e) {
         // play
         result = Game.play(order);
 
-        scorecard.win  += result.winner === pos ? 1 : 0;
-        scorecard.loss += result.winner === pos ? 0 : 1;
-        scorecard.tie  += result.winner === undefined ? 1 : 0;
+        // store history
+        if(result.winner === pos){
+            var key = JSON.stringify( result.game.history );
+            if( !historyMap[key] ) {
+                historyMap[key] = result.game.board.turn+1;
+                scorecard.wins.push( result.game.history );
+            }
+        }
+
+        switch (result.winner) {
+            case pos:
+                scorecard.win++;
+                break;
+            case undefined:
+                scorecard.tie++;
+                break;
+            default:
+                scorecard.loss++;
+                break;
+        }
+        
         scorecard.moves.count += result.turnsToWin;
         scorecard.moves.min =  Math.min(scorecard.moves.min, result.turnsToWin);
         scorecard.moves.max =  Math.max(scorecard.moves.max, result.turnsToWin);
