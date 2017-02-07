@@ -54,7 +54,7 @@ class NeuralNet {
                 var w = weights.splice(0, prevLayer.length);
 
                 // one more weight for the bias
-                var bias = weights.splice(0, 1);
+                var bias = weights.splice(0, 1)[0];
 
                 // if inputs layer, take inputs value
                 var v = 0;
