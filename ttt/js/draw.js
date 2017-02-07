@@ -111,7 +111,7 @@ class Draw {
 
 class DrawBoard {
 	
-	constructor ( game ) {
+	constructor ( game, canvasId ) {
 		this.board;
 		this.game = game;
 
@@ -258,10 +258,44 @@ class DrawBoard {
 	}
 }
 
-class DrawNeuro {
+class DrawNet {
 	
-	constructor (player) {
-		this.player = player;
+	constructor (canvasId) {
+
+		this.mouseTarget;	// the display object currently under the mouse, or being dragged
+		this.dragStarted;	// indicates whether we are currently in a drag operation
+		this.offset;
+		this.update = true;
+
+		// create stage and point it to the canvas:
+		this.canvas = document.getElementById(canvasId);
+		this.stage = new createjs.Stage(this.canvas);
+
+		// enable touch interactions if supported on the current device:
+		createjs.Touch.enable(this.stage);
+
+		// enabled mouse over / out events
+		this.stage.enableMouseOver(10);
+		this.stage.mouseMoveOutside = true; // keep tracking the mouse even when it leaves the canvas
+
+		var self = this;
+		function resizeEvent (event) {
+			self.canvas.setAttribute('width', self.canvas.clientWidth);
+			self.canvas.setAttribute('height', self.canvas.clientHeight);
+			self.draw();
+		};
+		resizeEvent();
+		window.onresize = resizeEvent;
+
+		this.init();
+
+		this.draw();
+
+		var self = this;
+		createjs.Ticker.addEventListener("tick", function(){
+			self.draw();
+			// self.stage.update();
+		}, null, false, this);
 	}
 
 	static get options () {
@@ -273,45 +307,143 @@ class DrawNeuro {
 		}
 	}
 
-	draw ( container ) {
+	setDNA( dna ) {
+		this.net = new NeuralNet({inputs:18, outputs:9}, dna);
+		this.init();
+	}
 
-		if ( !(this.player && this.player.network) ) return
+	draw ( ) {
 
-		var layerWidth = container.width / (this.player.network.layers.length + 1);
+	}
+
+	init ( ) {
+
+		if ( !(this.net) ) return;
+
+		this.stage.removeAllChildren();
+
+		this.weightsContainer = new createjs.Container();
+		this.stage.addChild(this.weightsContainer);
+		this.nodesContainer = new createjs.Container();
+		this.stage.addChild(this.nodesContainer);
+
+		var layerWidth = this.canvas.width / (this.net.layers.length + 1);
 		var biggestLayer = 0;
-		this.player.network.layers.forEach(a => biggestLayer = Math.max( biggestLayer, a.length ) );
+		this.net.layers.forEach(a => biggestLayer = Math.max( biggestLayer, a.length ) );
 
-		this.player.network.layers.forEach(function (layer, layerIdx, layers) {
+		var weightsContainer = this.weightsContainer;
+		var nodesContainer = this.nodesContainer;
+
+		this.net.layers.forEach(function (layer, layerIdx, layers) {
 
 			// for vertical centering
-			var biggestLayerSize = biggestLayer * ( DrawNeuro.options.node.padding + (DrawNeuro.options.node.radius * 2)) / 2;
-			var thisLayerSize = layer.length * ( DrawNeuro.options.node.padding + (DrawNeuro.options.node.radius * 2)) / 2;
+			var biggestLayerSize = biggestLayer * ( DrawNet.options.node.padding + (DrawNet.options.node.radius * 2)) / 2;
+			var thisLayerSize = layer.length * ( DrawNet.options.node.padding + (DrawNet.options.node.radius * 2)) / 2;
 			var layerPad = (biggestLayerSize - thisLayerSize)/2;
 
 			layer.forEach( function (node, nodeIdx, nodes) {
 				
-				var x = layerWidth + layerWidth * layerIdx;
-				var y = layerPad + DrawNeuro.options.node.padding + 
-					DrawNeuro.options.node.radius +
-					DrawNeuro.options.node.padding*nodeIdx;
+				node.draw = {
+					x: layerWidth + layerWidth * layerIdx,
+					y: layerPad + DrawNet.options.node.padding + 
+						DrawNet.options.node.radius +
+						DrawNet.options.node.padding*nodeIdx
+				}
+				
+				node.mouse = node.mouse || {
+					hover: false,
+					selected: false
+				}
 
+				// node container
+				var nodeContainer = new createjs.Container();
+				// nodeContainer.alpha = 0.5;
+				nodesContainer.addChild( nodeContainer );
+
+				var nodeWeightContainer = new createjs.Container();
+				nodeWeightContainer.alpha = 0.01;
+				weightsContainer.addChild( nodeWeightContainer );
+
+				// node
 				var shape = new createjs.Shape();
 				shape.graphics
 					.setStrokeStyle(1)
 					.beginStroke("#000")
-					.beginFill("#fff")
-					.drawCircle(x, y, DrawNeuro.options.node.radius);
-				container.addChild(shape);
+					.beginFill("#000")
+					.drawCircle(node.draw.x, node.draw.y, DrawNet.options.node.radius);
+				nodeContainer.addChild(shape);
+				node.draw.shape = shape;
+				
+				shape.containers = {
+					node: nodeContainer,
+					weights: nodeWeightContainer
+				}
 
-				var text = new createjs.Text(node.value, "10px Arial", "#000");
-				text.x = x;
-				text.y = y;
+				// value
+				// var val =  node.value.toFixed(2);
+				var val =  node.value;
+				var text = new createjs.Text(val, "11px Arial", "#fff");
+				text.x = node.draw.x - 3;
+				text.y = node.draw.y + 4;
 				text.textBaseline = "alphabetic";
-				container.addChild(text);
+				nodeContainer.addChild(text);
+				node.draw.text = text;
 
+				// weights
+				node.inputs.forEach(function(prev, prevIdx, previousNodes){
+
+					var weightLine = new createjs.Shape();
+					var g = weightLine.graphics;
+
+					// var w = Math.round( node.weights[prevIdx], 2 );
+					// var w = node.weights[prevIdx].toFixed(2);
+					var w = node.weights[prevIdx];
+
+					var stokeWeight = ((w + 1) / 2) * 5;
+					g.setStrokeStyle(stokeWeight, "round")
+
+					g.beginStroke("#aaa");
+
+					g.moveTo( node.draw.x, node.draw.y );
+					g.lineTo( prev.draw.x, prev.draw.y );
+
+					g.endStroke();
+					nodeWeightContainer.addChild( weightLine );
+
+					var text = new createjs.Text(w, "12px Arial", "#000");
+					text.x = prev.draw.x + DrawNet.options.node.radius + 5;
+					text.y = prev.draw.y;
+					text.textBaseline = "alphabetic";
+					nodeWeightContainer.addChild(text);
+				});
+
+				// mouse events
+				function handleMouseDown(event) {
+					var target = event.target;
+					node.mouse.selected = true;
+					console.log( "handleMouseDown", event, node );
+					event.target.alpha = (event.type == "mouseover") ? 1 : 0.5;
+
+					this.stage.update();
+				}
+
+				function handleMouse(event) {
+					var target = event.target;
+					node.mouse.hover = false;
+					event.target.containers.weights.alpha = (event.type == "rollover") ? 1 : 0.01;
+					// event.target.containers.node.alpha = (event.type == "rollover") ? 1 : 0.5;
+
+					this.stage.update();
+				}
+
+				shape.on("rollover", handleMouse );
+				shape.on("rollout",  handleMouse );
+				shape.on("mousedown",  handleMouseDown );
 
 			});
 		});
+
+		this.stage.update();
 
 	}
 }

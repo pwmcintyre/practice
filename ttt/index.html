@@ -10,17 +10,20 @@
         <script src="js/player.js"></script>
         <script src="js/coach.js"></script>
         <script src="js/draw.js"></script>
+        <script src="js/synaptic.js"></script>
         <style>
         body {
             font-family: monospace;
         }
-        #canvas {
+        canvas {
             height:100%;
             width:100%;
         }
-        #canvasboard {
-            height: 400px;
-            width:  400px;
+        #board {
+            height: 300px;
+        }
+        #net {
+            height: 1200px;
         }
         ul#log { 
             display: flex;
@@ -45,6 +48,9 @@
         </div>
         <div id="board">
             <canvas id="canvasboard"></canvas>
+        </div>
+        <div id="net">
+            <canvas id="canvasnet"></canvas>
         </div>
         <ul id="log">
 
@@ -71,8 +77,8 @@
 
 var coach = new Coach();
 // var draw = new Draw(coach);
-var draw = new DrawBoard()
-
+var drawBoard = new DrawBoard('canvasboard');
+var drawNet = new DrawNet('canvasnet');
 
 
         </script>
