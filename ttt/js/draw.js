@@ -312,6 +312,11 @@ class DrawNet {
 		this.init();
 	}
 
+	setNeuralNet( net ) {
+		this.net = net;
+		this.init();
+	}
+
 	draw ( ) {
 
 	}
@@ -365,11 +370,15 @@ class DrawNet {
 				weightsContainer.addChild( nodeWeightContainer );
 
 				// node
+				// var val =  node.value.toFixed(2);
+				var val =  roundToTwo( node.value );
+
+				var shapeColor = Math.round( 255 - val * 200 ).toString(16);
 				var shape = new createjs.Shape();
 				shape.graphics
 					.setStrokeStyle(1)
 					.beginStroke("#000")
-					.beginFill("#000")
+					.beginFill("#"+shapeColor+shapeColor+shapeColor)
 					.drawCircle(node.draw.x, node.draw.y, DrawNet.options.node.radius);
 				nodeContainer.addChild(shape);
 				node.draw.shape = shape;
@@ -380,11 +389,10 @@ class DrawNet {
 				}
 
 				// value
-				// var val =  node.value.toFixed(2);
-				var val =  node.value;
-				var text = new createjs.Text(val, "11px Arial", "#fff");
-				text.x = node.draw.x - 3;
-				text.y = node.draw.y + 4;
+				var text = new createjs.Text(val, "11px Arial", val < 0.5 ? "#000" : "#fff");
+				var b = text.getBounds();
+				text.x = node.draw.x - b.width/2;
+				text.y = node.draw.y + b.height/2;
 				text.textBaseline = "alphabetic";
 				nodeContainer.addChild(text);
 				node.draw.text = text;
@@ -392,27 +400,38 @@ class DrawNet {
 				// weights
 				node.inputs.forEach(function(prev, prevIdx, previousNodes){
 
-					var weightLine = new createjs.Shape();
-					var g = weightLine.graphics;
-
 					// var w = Math.round( node.weights[prevIdx], 2 );
 					// var w = node.weights[prevIdx].toFixed(2);
-					var w = node.weights[prevIdx];
+					var w = roundToTwo( node.weights[prevIdx] );
 
-					var stokeWeight = ((w + 1) / 2) * 5;
+					var stokeWeight = 2 + ((w + 1) / 2) * 3;
+					var stokeColor = Math.floor( 200 - ((w + 1) / 2) * 200 ).toString(16);
+
+					var text = new createjs.Text(w, "12px Arial",  w < 0.2 ? "#000" : "#fff");
+					var b = text.getBounds();
+
+					var weightLine = new createjs.Shape();
+					var g = weightLine.graphics;
+					
+					// draw line
 					g.setStrokeStyle(stokeWeight, "round")
-
-					g.beginStroke("#aaa");
-
+					g.beginStroke("#"+stokeColor+stokeColor+stokeColor);
 					g.moveTo( node.draw.x, node.draw.y );
-					g.lineTo( prev.draw.x, prev.draw.y );
-
+					g.lineTo( prev.draw.x + DrawNet.options.node.radius + b.width + 5, prev.draw.y );
 					g.endStroke();
 					nodeWeightContainer.addChild( weightLine );
 
-					var text = new createjs.Text(w, "12px Arial", "#000");
+					// draw text background
+					var shape = new createjs.Shape();
+					shape.graphics
+						.beginFill("#"+stokeColor+stokeColor+stokeColor)
+						.drawRoundRect(prev.draw.x, prev.draw.y-b.height, DrawNet.options.node.radius + b.width + 15, b.height*2, 2);
+					nodeWeightContainer.addChild(shape);
+					node.draw.shape = shape;
+
+					// draw text
 					text.x = prev.draw.x + DrawNet.options.node.radius + 5;
-					text.y = prev.draw.y;
+					text.y = prev.draw.y + b.height/2;
 					text.textBaseline = "alphabetic";
 					nodeWeightContainer.addChild(text);
 				});
@@ -446,4 +465,11 @@ class DrawNet {
 		this.stage.update();
 
 	}
+}
+
+
+
+function roundToTwo(num) {    
+	// return +(Math.round(num + "e+2")  + "e-2");
+	return Math.round(num*100)/100
 }
