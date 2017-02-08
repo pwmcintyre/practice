@@ -109,14 +109,14 @@ class Neuro extends Player {
         }).filter(function(r){
             return availableMoves.indexOf(r.position) >= 0;
         }).sort(function(a,b){
-            return a.score - b.score
+            return b.score - a.score
         });
 
         // return the best idea
         return recommendations[0].position;
     }
     
-    static get PROBABILITY_OF_MUTATION () { return 0.5; }
+    static get PROBABILITY_OF_MUTATION () { return 0.01; }
     static mate (a, b, count) {
 
         var length = Math.max(a.length, b.length);
