@@ -31,6 +31,7 @@ class TTT {
     this.board = 0;
     this.turn = 0;
     this.history = [];
+    this.winner;
   }
 
   // this collapses all players pieces
@@ -75,7 +76,13 @@ class TTT {
     this.history.push( this.board );
     
     // check win
-    if ( TTT.hasWon( this.players[this.turn][0] ) )
+    if ( TTT.hasWon( this.players[this.turn][0] ) ) {
+      this.winner = this.turn;
+      return true;
+    }
+
+    // check tie
+    if ( this.history.length >= TTT.MAX_MOVES )
       return true;
 
     // swap turns
