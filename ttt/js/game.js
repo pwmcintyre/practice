@@ -32,11 +32,24 @@ class Game {
 
     constructor (players) {
         this.players = players;
-        this.board = new TTT();
+        this.reset();
+        this.updateEvent;
+    }
+
+    onUpdate( func ) {
+        this.updateEvent = func;
+        return this;
     }
 
     reset() {
         this.board = new TTT();
+        this.update();
+        return this;
+    }
+
+    update() {
+        this.values = this.board.playerBoardToArray();
+        if (this.updateEvent) this.updateEvent( this );
         return this;
     }
 
@@ -65,6 +78,7 @@ class Game {
         // if move given, make it
         if (move) {
             var done = game.board.takeTurn(move);
+            this.update();
         }
 
         if ( !done ) {
@@ -76,7 +90,9 @@ class Game {
         } else {
             // on game completion
             game.onDone && game.onDone() ||
-                console.log( "winner", game.players[game.board.turn] );
+                game.board.winner !== undefined ? 
+                    console.log( "winner", game.players[game.board.winner] ) :
+                    console.log( "tie" );
         }
 
         return game;

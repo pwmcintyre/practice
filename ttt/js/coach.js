@@ -44,12 +44,13 @@ class Coach {
             
             self.benchmark (self);
 
-            console.log( `Gen: ${current} (+${generations - current}) with ${self.players.length} players`, self.top[0].scorecard );
-
             if (current < generations) {
                 self.nextGeneration();
                 self.train(generations, iterations, current + 1);
             }
+
+            var avg = self.top.reduce( ( acc, cur ) => acc + cur.scorecard.score, 0 ) / self.top.length;
+            console.log( `Gen: ${current} (+${generations - current}) with ${self.players.length} players avg ${avg}`, self.top[0].scorecard, self.top[1].scorecard );
         });
     }
 
@@ -74,18 +75,20 @@ class Coach {
             self.players = results;
 
             // get the top x players
-            var top = self.topPlayers(2);
+            var top = self.topPlayers(3);
 
             // save
             // self.generations.push(top[0]); // too much memory!
-            self.top.push(...top);
-            self.top = self.top.sort(sortPlayers).slice(0,10);
+            // self.top.push(...top);
+            // self.top = self.top.sort(sortPlayers).slice(0,10);
+            if (self.best) top.push(self.best)
+            self.top = top.sort(sortPlayers).slice(0,10);
+            self.best = self.top[0];
 
             // cleanup
             top = undefined;
-            results = undefined;
 
-            callback && callback();
+            callback && callback( results );
         });
     }
 
@@ -94,7 +97,7 @@ class Coach {
     nextGeneration() {
 
         var newCount = Math.ceil(this.players.length * Coach.ADD_RANDOM_TO_GENERATION);
-        var oldCount = this.players.length - newCount;
+        var oldCount = this.players.length - newCount - 1;
 
         // shuffle top players
         var top = this.top;
@@ -106,7 +109,8 @@ class Coach {
 
         // Add a dash of new players
         newPlayers = newPlayers.concat(
-            Coach.findRandomPlayers( newCount ) );
+            Coach.findRandomPlayers( newCount ), 
+            [this.best] );
 
         // save
         this.players = newPlayers;

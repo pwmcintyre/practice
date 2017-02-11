@@ -76,10 +76,33 @@
 
 
 var coach = new Coach();
-// var draw = new Draw(coach);
-var drawBoard = new DrawBoard('canvasboard');
-var drawNet = new DrawNet('canvasnet');
 
+// var draw = new Draw(coach);
+
+var me = new Human();
+var you = new Neuro().init();
+
+var game = (new Game()).with(me,you).play().onUpdate( function(){
+    console.log( 'game updated' );
+    // uncomment this if you want it to update after every turn
+    // you.getRecommendations(game.board.getAvailableMoves(), game.board);
+    drawNet.init();
+});
+
+var drawBoard = new DrawBoard('canvasboard')
+    .onClick(function(move){
+        console.log( move );
+        me.makeMove( move );
+    }).reset();
+
+var drawNet = new DrawNet('canvasnet').setNeuralNet( you.network ).init();
+
+function trainAndDraw() {
+    coach.train(1,1);
+    drawNet.setDNA( coach.topPlayers()[0].dna );
+    drawNet.net.update();
+    drawNet.init();
+}
 
         </script>
     </body>

@@ -143,12 +143,15 @@ class DrawBoard {
 		// this.reset();
 		// createjs.Ticker.addEventListener("tick", this.tick, null, false, {self:this});
 
-		this.reset();
-
 		var self = this;
 		createjs.Ticker.addEventListener("tick", function(){
 			self.stage.update();
 		}, null, false, this);
+	}
+
+	onClick( clickEvent ){
+		this.clickEvent = clickEvent;
+		return this;
 	}
 
 	static get options () {
@@ -200,6 +203,29 @@ class DrawBoard {
 				area.bitboard = bitboard;
 				area.hasPiece = false;
 				bitboard <<= 1;
+
+				// draw X
+				var shapeX = new createjs.Shape();
+				area.addChild(shapeX);
+				var g = shapeX.graphics
+				g.setStrokeStyle(4);
+				g.beginStroke("#00f");
+				g.moveTo( 0, 0 );
+				g.lineTo( DrawBoard.options.size, DrawBoard.options.size );
+				g.moveTo( DrawBoard.options.size, 0 );
+				g.lineTo( 0, DrawBoard.options.size );
+				g.endStroke();
+				shapeX.alpha = 0.1;
+
+				// draw O
+				var shapeO = new createjs.Shape();
+				area.addChild(shapeO);
+				var g = shapeO.graphics
+				g.setStrokeStyle(4);
+				g.beginStroke("#f00");
+				g.drawCircle(DrawBoard.options.size/2, DrawBoard.options.size/2, DrawBoard.options.size/2);
+				g.endStroke();
+				shapeO.alpha = 0.1;
 			}
 		}
 
@@ -223,24 +249,12 @@ class DrawBoard {
 		board.addChild(shape);
 
 		var game = this.game;
+		var clickEvent = this.clickEvent;
 		function handleMouseDown(event) {
 			var target = event.target;
 			if (target.hasPiece) return;
 
-			var shape = target.hasPiece = new createjs.Shape();
-
-			target.parent.addChild(shape);
-			var g = shape.graphics
-
-			g.setStrokeStyle(2);
-			g.beginStroke("#00f");
-
-			g.moveTo( 0, 0 );
-			g.lineTo( DrawBoard.options.size, DrawBoard.options.size );
-			g.moveTo( DrawBoard.options.size, 0 );
-			g.lineTo( 0, DrawBoard.options.size );
-
-			g.endStroke();
+			if(clickEvent) clickEvent( target.parent.bitboard );
 		}
 
 		function handleMouseOver(event) {
@@ -298,6 +312,8 @@ class DrawNet {
 			self.draw();
 			// self.stage.update();
 		}, null, false, this);
+
+		return this;
 	}
 
 	static get options () {
@@ -312,11 +328,13 @@ class DrawNet {
 	setDNA( dna ) {
 		this.net = new NeuralNet({inputs:18, outputs:9}, dna);
 		this.init();
+		return this;
 	}
 
 	setNeuralNet( net ) {
 		this.net = net;
 		this.init();
+		return this;
 	}
 
 	draw ( ) {
@@ -325,7 +343,7 @@ class DrawNet {
 
 	init ( ) {
 
-		if ( !(this.net) ) return;
+		if ( !(this.net) ) return this;
 
 		this.stage.removeAllChildren();
 
@@ -466,6 +484,7 @@ class DrawNet {
 
 		this.stage.update();
 
+		return this;
 	}
 }
 

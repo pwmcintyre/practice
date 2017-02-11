@@ -85,10 +85,15 @@ class Neuro extends Player {
         var move = this.getRecommendations(moves, board);
         callback( move );
     }
-    getRecommendations (availableMoves, board) {
-
+    init(){
         if ( !this.network )
             this.network = new NeuralNet({inputs:18, outputs:9}, this.dna);
+
+        return this;
+    }
+    getRecommendations (availableMoves, board) {
+
+        this.init();
 
         // look at the board
         this.network.setInputs( board.playerBoardToArray() );
