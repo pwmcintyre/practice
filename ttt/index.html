@@ -92,7 +92,8 @@ var game = (new Game()).with(me,you).play().onUpdate( function(){
 var drawBoard = new DrawBoard('canvasboard')
     .onClick(function(move){
         console.log( move );
-        me.makeMove( move );
+        // me.makeMove( move );
+        game.players[game.board.turn].makeMove( move );
     }).reset();
 
 var drawNet = new DrawNet('canvasnet').setNeuralNet( you.network ).init();
