@@ -386,7 +386,7 @@ class DrawNet {
 				nodesContainer.addChild( nodeContainer );
 
 				var nodeWeightContainer = new createjs.Container();
-				nodeWeightContainer.alpha = 0.01;
+				// nodeWeightContainer.alpha = 0.01;
 				weightsContainer.addChild( nodeWeightContainer );
 
 				// node
@@ -422,20 +422,23 @@ class DrawNet {
 
 					// var w = Math.round( node.weights[prevIdx], 2 );
 					// var w = node.weights[prevIdx].toFixed(2);
-					var w = roundToTwo( node.weights[prevIdx] );
+					var w = roundToTwo( node.weights[prevIdx] * previousNodes[prevIdx].value );
 
-					var stokeWeight = 2 + ((w + 1) / 2) * 3;
-					var stokeColor = Math.floor( 200 - ((w + 1) / 2) * 200 ).toString(16);
+					var strokeWeight = 2 + Math.abs(w * 3);
+					// var strokeColor = Math.floor( 200 - ((w + 1) / 2) * 200 ).toString(16);
+					var strokeColor = w < 0 ? '#E74C3C' : '#091E3A';
+					var strokeAlpha = Math.abs(w);
 
-					var text = new createjs.Text(w, "12px Arial",  w < 0.2 ? "#000" : "#fff");
+					var text = new createjs.Text(w, "12px Arial", "#fff");
 					var b = text.getBounds();
 
 					var weightLine = new createjs.Shape();
 					var g = weightLine.graphics;
 					
 					// draw line
-					g.setStrokeStyle(stokeWeight, "round")
-					g.beginStroke("#"+stokeColor+stokeColor+stokeColor);
+					weightLine.alpha = strokeAlpha;
+					g.setStrokeStyle(strokeWeight, "round")
+					g.beginStroke( strokeColor );
 					g.moveTo( node.draw.x, node.draw.y );
 					g.lineTo( prev.draw.x + DrawNet.options.node.radius + b.width + 5, prev.draw.y );
 					g.endStroke();
@@ -444,7 +447,7 @@ class DrawNet {
 					// draw text background
 					var shape = new createjs.Shape();
 					shape.graphics
-						.beginFill("#"+stokeColor+stokeColor+stokeColor)
+						.beginFill( strokeColor )
 						.drawRoundRect(prev.draw.x, prev.draw.y-b.height, DrawNet.options.node.radius + b.width + 15, b.height*2, 2);
 					nodeWeightContainer.addChild(shape);
 					node.draw.shape = shape;
@@ -459,17 +462,18 @@ class DrawNet {
 				// mouse events
 				function handleMouseDown(event) {
 					var target = event.target;
-					node.mouse.selected = true;
-					console.log( "handleMouseDown", event, node );
-					event.target.alpha = (event.type == "mouseover") ? 1 : 0.5;
-
+					target.locked = !target.locked;
+					console.log(target.locked);
 					this.stage.update();
 				}
 
 				function handleMouse(event) {
 					var target = event.target;
-					node.mouse.hover = false;
-					event.target.containers.weights.alpha = (event.type == "rollover") ? 1 : 0.01;
+
+					if(target.locked) return;
+
+					event.target.containers.weights.alpha = 
+						(event.type === "rollover") ? 1 : 0.01;
 					// event.target.containers.node.alpha = (event.type == "rollover") ? 1 : 0.5;
 
 					this.stage.update();
