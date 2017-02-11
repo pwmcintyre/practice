@@ -9,7 +9,7 @@ class NeuralNet {
             inputs: 18,
             outputs: 9,
             hiddenLayers: 2,
-            layerDepth: 25
+            layerDepth: 12
         });
 
         // establish structure
