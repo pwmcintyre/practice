@@ -8,8 +8,8 @@ class NeuralNet {
         this.options = Object.assign(options, {
             inputs: 18,
             outputs: 9,
-            hiddenLayers: 2,
-            layerDepth: 12
+            hiddenLayers: 1,
+            layerDepth: 10
         });
 
         // establish structure
