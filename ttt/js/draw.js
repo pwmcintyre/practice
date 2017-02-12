@@ -144,6 +144,17 @@ class DrawBoard {
 		// this.reset();
 		// createjs.Ticker.addEventListener("tick", this.tick, null, false, {self:this});
 
+		this.start();
+	}
+
+	start () {
+		var self = this;
+		createjs.Ticker.addEventListener("tick", function(){
+			self.stage.update();
+		}, null, false, this);
+	}
+
+	stop () {
 		var self = this;
 		createjs.Ticker.addEventListener("tick", function(){
 			self.stage.update();
@@ -324,11 +335,11 @@ class DrawNet {
 
 		this.draw();
 
-		var self = this;
-		createjs.Ticker.addEventListener("tick", function(){
-			self.draw();
-			// self.stage.update();
-		}, null, false, this);
+		// var self = this;
+		// createjs.Ticker.addEventListener("tick", function(){
+		// 	self.draw();
+		// 	// self.stage.update();
+		// }, null, false, this);
 
 		return this;
 	}
