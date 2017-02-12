@@ -43,8 +43,7 @@
     </head>
     <body>
         <div id="input">
-            <input id="move" type="number" />
-            <button onclick="move()">move</button>
+            <button onclick="reset()">reset</button>
         </div>
         <div id="board">
             <canvas id="canvasboard"></canvas>
@@ -78,31 +77,33 @@
 var coach = new Coach();
 
 // var draw = new Draw(coach);
+var me, you, game;
+var drawBoard = new DrawBoard('canvasboard');
+var drawNet = new DrawNet('canvasnet');
 
-var me = new Human();
-var you = new Neuro().init();
+coach.train(100, 100, reset);
 
-var game = (new Game()).with(me,you).play().onUpdate( function(){
-    console.log( 'game updated' );
-    // uncomment this if you want it to update after every turn
-    // you.getRecommendations(game.board.getAvailableMoves(), game.board);
-    drawNet.init();
-});
+function reset () {
 
-var drawBoard = new DrawBoard('canvasboard')
-    .onClick(function(move){
-        console.log( move );
-        // me.makeMove( move );
-        game.players[game.board.turn].makeMove( move );
-    }).reset();
+    me = new Human();
+    you = new Neuro( coach.best ? coach.best.dna : null ).init();
 
-var drawNet = new DrawNet('canvasnet').setNeuralNet( you.network ).init();
+    game = (new Game()).with(me,you).play().onUpdate( function(move){
+        console.log( 'game updated', move );
+        // uncomment this if you want it to update after every turn
+        // you.getRecommendations(game.board.getAvailableMoves(), game.board);
+        drawNet.init();
+        drawBoard.update();
+    });
 
-function trainAndDraw() {
-    coach.train(1,1);
-    drawNet.setDNA( coach.topPlayers()[0].dna );
-    drawNet.net.update();
-    drawNet.init();
+    drawBoard.withGame( game )
+        .onClick(function(move){
+            console.log( move );
+            // me.makeMove( move );
+            game.players[game.board.turn].makeMove( move );
+        }).reset();
+
+    drawNet.setNeuralNet( you.network ).init();
 }
 
         </script>
