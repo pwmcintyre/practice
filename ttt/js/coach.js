@@ -35,7 +35,7 @@ class Coach {
         console.log(`Time since last benchmark: ${seconds}`);
     }
 
-    train(generations, iterations, current) {
+    train(generations, iterations, cb, current) {
 
         var self = this;
         current = current || 1;
@@ -46,7 +46,9 @@ class Coach {
 
             if (current < generations) {
                 self.nextGeneration();
-                self.train(generations, iterations, current + 1);
+                self.train(generations, iterations, cb, current + 1);
+            } else {
+                cb&&cb();
             }
 
             var avg = self.top.reduce( ( acc, cur ) => acc + cur.scorecard.score, 0 ) / self.top.length;
