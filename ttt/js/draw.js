@@ -320,7 +320,7 @@ class DrawNet {
 		return {
 			node: {
 				radius: 20,
-				padding: 50
+				padding: 10
 			}
 		}
 	}
@@ -370,9 +370,9 @@ class DrawNet {
 				
 				node.draw = {
 					x: layerWidth + layerWidth * layerIdx,
-					y: layerPad + DrawNet.options.node.padding + 
-						DrawNet.options.node.radius +
-						DrawNet.options.node.padding*nodeIdx
+					y: layerPad + 
+						(DrawNet.options.node.radius * 2 +
+						DrawNet.options.node.padding) * (nodeIdx+1)
 				}
 				
 				node.mouse = node.mouse || {
@@ -392,6 +392,7 @@ class DrawNet {
 				// node
 				// var val =  node.value.toFixed(2);
 				var val =  roundToTwo( node.value );
+				var bias =  roundToTwo( node.bias );
 
 				var shapeColor = Math.round( 255 - val * 200 ).toString(16);
 				var shape = new createjs.Shape();
@@ -416,6 +417,15 @@ class DrawNet {
 				text.textBaseline = "alphabetic";
 				nodeContainer.addChild(text);
 				node.draw.text = text;
+
+				// bias
+				var bias = new createjs.Text(bias, "8px Arial", "#000");
+				var b = bias.getBounds();
+				bias.x = node.draw.x - b.width/2;
+				bias.y = node.draw.y - b.height/2 - DrawNet.options.node.radius + 2;
+				bias.textBaseline = "alphabetic";
+				nodeContainer.addChild(bias);
+				node.draw.bias = bias;
 
 				// weights
 				node.inputs.forEach(function(prev, prevIdx, previousNodes){

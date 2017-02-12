@@ -20,7 +20,7 @@ class NeuralNet {
         structure.push( this.options.outputs ); // last layer is for outputs
 
         // calculate how many weights we'll need
-        this.synapseCount = 0
+        this.synapseCount = structure[0];
         for (var i = 1; i < structure.length; i++) {
 
             // each node has one connection to each previous layer nodes
@@ -54,7 +54,8 @@ class NeuralNet {
                 var w = weights.splice(0, prevLayer.length);
 
                 // one more weight for the bias
-                var bias = i ? weights.splice(0, 1)[0] : 0;
+                // var bias = i ? weights.splice(0, 1)[0] : 0;
+                var bias = weights.splice(0, 1)[0];
 
                 // if inputs layer, take inputs value
                 var v = 0;

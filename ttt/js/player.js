@@ -86,8 +86,10 @@ class Neuro extends Player {
         callback( move );
     }
     init(){
-        if ( !this.network )
+        if ( !this.network ) {
             this.network = new NeuralNet({inputs:18, outputs:9}, this.dna);
+            this.network.update();
+        }
 
         return this;
     }
