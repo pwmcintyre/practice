@@ -115,10 +115,11 @@ class DrawBoard {
 		
 		this.game = null;
 
+		this.bitboard = [];
+
 		this.mouseTarget;	// the display object currently under the mouse, or being dragged
 		this.dragStarted;	// indicates whether we are currently in a drag operation
 		this.offset;
-		this.update = true;
 
 		// create stage and point it to the canvas:
 		this.canvas = document.getElementById( canvasId );
@@ -161,9 +162,18 @@ class DrawBoard {
 		}
 	}
 
-	setGame( game ) {
+	withGame( game ) {
 		this.game = game;
 		this.reset();
+		return this;
+	}
+
+	update(){
+		for( var x = 0; x < TTT.MAX_MOVES; x++) {
+			var bitPosition = 1 << x;
+			this.bitboard[bitPosition].shapeX.alpha = this.game.board.players[0][0] & bitPosition;
+			this.bitboard[bitPosition].shapeO.alpha = this.game.board.players[1][0] & bitPosition;
+		}
 	}
 
 	reset ( ) {
@@ -200,10 +210,6 @@ class DrawBoard {
 
 				board.addChild(area)
 
-				area.bitboard = bitboard;
-				area.hasPiece = false;
-				bitboard <<= 1;
-
 				// draw X
 				var shapeX = new createjs.Shape();
 				area.addChild(shapeX);
@@ -226,6 +232,15 @@ class DrawBoard {
 				g.drawCircle(DrawBoard.options.size/2, DrawBoard.options.size/2, DrawBoard.options.size/2);
 				g.endStroke();
 				shapeO.alpha = 0.1;
+
+				this.bitboard[bitboard] = {
+					shapeX: shapeX,
+					shapeO: shapeO
+				}
+
+				area.bitboard = bitboard;
+				area.hasPiece = false;
+				bitboard <<= 1;
 			}
 		}
 
@@ -271,6 +286,8 @@ class DrawBoard {
 			if (target.hasPiece) return;
 			// target.graphics.clear();
 		}
+
+		return this;
 	}
 }
 
