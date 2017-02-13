@@ -4,7 +4,7 @@ class Coach {
 
     constructor(players, opp) {
         this.opponent = opp || new Rando();
-        this.players = players || Coach.findRandomPlayers(100);
+        this.players = players || Coach.findRandomPlayers(10);
         this.top = [];
         this.generations = [];
         this.workers = new Workers();
@@ -62,13 +62,15 @@ class Coach {
         iterations = iterations || 1000;
 
         var self = this;
-        var jobs = this.players.map(function(player, playerIdx){
-            return {
-                dna: player.dna,
-                opponent: self.opponent && self.opponent.dna ? self.opponent.dna : null,
-                iterations: iterations
-            }
-        });
+        var jobs = this.players.map(function(playerA, playerIdx){
+            return self.players.map(function(playerB, playerIdx){
+                return {
+                    dna: playerA.dna,
+                    opponent: playerB.dna,
+                    iterations: iterations
+                }
+            })
+        }).reduce((a, b) => a.concat(b), []);
 
         var self = this;
         this.workers.process(jobs, function(results){

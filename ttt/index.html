@@ -81,14 +81,14 @@ var me, you, game;
 var drawBoard = new DrawBoard('canvasboard');
 var drawNet = new DrawNet('canvasnet');
 
-coach.train(100, 100, reset);
+coach.train(1000, 1000, reset);
 
 function reset () {
 
     me = new Human();
     you = new Neuro( coach.best ? coach.best.dna : null ).init();
 
-    game = (new Game()).with(me,you).play().onUpdate( function(move){
+    game = (new Game()).with(you,me).onUpdate( function(move){
         console.log( 'game updated', move );
         // uncomment this if you want it to update after every turn
         // you.getRecommendations(game.board.getAvailableMoves(), game.board);
@@ -104,6 +104,8 @@ function reset () {
         }).reset();
 
     drawNet.setNeuralNet( you.network ).init();
+
+    game.play();
 }
 
         </script>
