@@ -3,10 +3,14 @@
         <script src="js/lib/easeljs-0.8.2.min.js"></script>
         <script src="js/lib/webgl-0.8.2.min.js"></script>
         <script src="js/lib/tweenjs-0.6.2.min.js"></script>
+        <script src="js/workerManager.js"></script>
         <script src="js/tictactoe.js"></script>
+        <script src="js/neural_net.js"></script>
         <script src="js/game.js"></script>
         <script src="js/player.js"></script>
+        <script src="js/coach.js"></script>
         <script src="js/draw.js"></script>
+        <script src="js/synaptic.js"></script>
         <style>
         body {
             font-family: monospace;
@@ -52,19 +56,39 @@
         </ul>
         <script>
 
-var player1, player2, game;
+// // extend console.log to print to HTML
+// (function () {
+//     var old = console.log;
+//     var logger = document.getElementById('log');
+//     console.log = function (message) {
+//         old.apply( this, arguments ); 
+//         if (typeof message == 'object') {
+//             message = (JSON && JSON.stringify ? JSON.stringify(message) : message);
+//         } else if (message && message.replace) {
+//             message = message.replace(/\n/g,'<br/>');
+//         }
+//         var node = document.createElement("li");
+//         node.innerHTML = message;
+//         logger.appendChild(node);
+//     }
+// })();
 
+
+var coach = new Coach();
+
+// var draw = new Draw(coach);
+var me, you, game;
 var drawBoard = new DrawBoard('canvasboard');
 var drawNet = new DrawNet('canvasnet');
 
-reset();
+coach.train(1000, 1000, reset);
 
 function reset () {
 
-    player1 = new Human();
-    player2 = new Human();
+    me = new Human();
+    you = new Neuro( coach.best ? coach.best.dna : null ).init();
 
-    game = (new Game()).with(player2,player1).onUpdate( function(move){
+    game = (new Game()).with(you,me).onUpdate( function(move){
         console.log( 'game updated', move );
         // uncomment this if you want it to update after every turn
         // you.getRecommendations(game.board.getAvailableMoves(), game.board);
@@ -73,11 +97,13 @@ function reset () {
     });
 
     drawBoard.withGame( game )
-        .onClick(function(game, move){
+        .onClick(function(move){
             console.log( move );
             // me.makeMove( move );
             game.players[game.board.turn].makeMove( move );
         }).reset();
+
+    drawNet.setNeuralNet( you.network ).init();
 
     game.play();
 }

@@ -141,9 +141,7 @@ class DrawBoard {
 		resizeEvent();
 		window.onresize = resizeEvent;
 
-		// this.reset();
-		// createjs.Ticker.addEventListener("tick", this.tick, null, false, {self:this});
-
+		this.setup();
 		this.start();
 	}
 
@@ -188,6 +186,14 @@ class DrawBoard {
 	}
 
 	reset ( ) {
+		for( var x = 0; x < TTT.MAX_MOVES; x++) {
+			var bitPosition = 1 << x;
+			this.bitboard[bitPosition].shapeX.alpha = 0;
+			this.bitboard[bitPosition].shapeO.alpha = 0;
+		}
+	}
+
+	setup ( ) {
 		
 		var board = new createjs.Container();
 		board.x = 20;
@@ -196,12 +202,39 @@ class DrawBoard {
 		board.height = DrawBoard.options.size * 3 + DrawBoard.options.padding * 2;
 		this.stage.addChild(board);
 
+		// handle click events
+		var game = this.game;
+		var clickEvent = this.clickEvent;
+		var self = this;
+		function handleMouseDown(event) {
+			var target = event.target;
+			if (target.hasPiece) return;
+
+			if(self.clickEvent) self.clickEvent( self.game, target.parent.bitboard );
+		}
+
+		function handleMouseOver(event) {
+			var target = event.target;
+			if (target.hasPiece) return;
+			// target.graphics.clear()
+			// 	.beginFill(target.overColor)
+			// 	.drawRect(0, 0, target.width, target.height)
+			// 	.endFill();
+		}
+
+		function handleMouseOut(event) {
+			var target = event.target;
+			if (target.hasPiece) return;
+			// target.graphics.clear();
+		}
+
 		// little containers for each piece
 		var bitboard = 1;
 		for (var y = 0; y < 3; y++) {
 			for (var x = 0; x < 3; x++) {
 
 				var area = new createjs.Container();
+
 				area.x = (DrawBoard.options.size + DrawBoard.options.padding) * x;
 				area.y = (DrawBoard.options.size + DrawBoard.options.padding) * y;
 
@@ -218,8 +251,6 @@ class DrawBoard {
 				area.on("rollover", handleMouseOver );
 				area.on("rollout",  handleMouseOut );
 				area.on("mousedown",  handleMouseDown );
-
-				board.addChild(area)
 
 				// draw X
 				var shapeX = new createjs.Shape();
@@ -252,6 +283,7 @@ class DrawBoard {
 				area.bitboard = bitboard;
 				area.hasPiece = false;
 				bitboard <<= 1;
+				board.addChild(area);
 			}
 		}
 
@@ -273,30 +305,6 @@ class DrawBoard {
 
 		g.endStroke();
 		board.addChild(shape);
-
-		var game = this.game;
-		var clickEvent = this.clickEvent;
-		function handleMouseDown(event) {
-			var target = event.target;
-			if (target.hasPiece) return;
-
-			if(clickEvent) clickEvent( target.parent.bitboard );
-		}
-
-		function handleMouseOver(event) {
-			var target = event.target;
-			if (target.hasPiece) return;
-			// target.graphics.clear()
-			// 	.beginFill(target.overColor)
-			// 	.drawRect(0, 0, target.width, target.height)
-			// 	.endFill();
-		}
-
-		function handleMouseOut(event) {
-			var target = event.target;
-			if (target.hasPiece) return;
-			// target.graphics.clear();
-		}
 
 		return this;
 	}
