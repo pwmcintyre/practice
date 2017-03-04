@@ -1,6 +1,6 @@
 'use strict'
 
-class TTT {
+class TicTacToe {
 
   // All possible win scenarios
   static get WIN() { return [
@@ -20,15 +20,21 @@ class TTT {
   } }
   static get PLAYER_COUNT() { return 2 }
   static get BOARD_SIZE() { return 3 }
-  static get MAX_MOVES() { return TTT.BOARD_SIZE * TTT.BOARD_SIZE }
+  static get MAX_MOVES() { return TicTacToe.BOARD_SIZE * TicTacToe.BOARD_SIZE }
 
   // lets begin
   constructor() {
-    this.players = new Array(TTT.PLAYER_COUNT);
+
+    // array of player moves (keeps history)
+    this.players = new Array(TicTacToe.PLAYER_COUNT);
     for (var i = 0; i < this.players.length; i++){
       this.players[i] = [0]
     }
+
+    // overall board bits
     this.board = 0;
+
+    // track whos turn
     this.turn = 0;
     this.history = [];
     this.winner;
@@ -56,7 +62,7 @@ class TTT {
 
   // rotate players
   nextPlayer () {
-    this.turn = (this.turn + 1) % TTT.PLAYER_COUNT;
+    this.turn = (this.turn + 1) % TicTacToe.PLAYER_COUNT;
   }
 
   // returns true if current player has won
@@ -67,7 +73,7 @@ class TTT {
       throw new Error ("Invalide Move");
 
     // add the move to the current players board
-    TTT.makeMove( this.players[this.turn], move);
+    TicTacToe.makeMove( this.players[this.turn], move);
 
     // update board
     this.updateBoard();
@@ -76,13 +82,13 @@ class TTT {
     this.history.push( this.board );
     
     // check win
-    if ( TTT.hasWon( this.players[this.turn][0] ) ) {
+    if ( TicTacToe.hasWon( this.players[this.turn][0] ) ) {
       this.winner = this.turn;
       return true;
     }
 
     // check tie
-    if ( this.history.length >= TTT.MAX_MOVES )
+    if ( this.history.length >= TicTacToe.MAX_MOVES )
       return true;
 
     // swap turns
@@ -94,10 +100,7 @@ class TTT {
   // returns the winning match if any
   static hasWon (board) {
 
-    // console.log("Checking board for winners", board.toString(2));
-
-    return TTT.WIN.find( function( el ){
-      // console.log("checking", el.toString(2));
+    return TicTacToe.WIN.find( function( el ){
       // AND each scenario, all pieces must match
       return (board & el) === el
     })
@@ -109,7 +112,7 @@ class TTT {
     var available = [];
     var move = 1;
 
-    for (var i = 0; i < TTT.MAX_MOVES; i++) {
+    for (var i = 0; i < TicTacToe.MAX_MOVES; i++) {
       if ( this.isValidMove(move) )
         available.push( move );
       move <<= 1;
@@ -118,40 +121,33 @@ class TTT {
   }
 
   // stringify the board to 2D ascii
-  toString (history) {
+  toString () {
 
-    // check history is at least 1, at most the size of our history
-    history = Math.max( Math.min(history || 1, this.players[0].length - 1), 1);
-    var temp = "";
+    var temp = '';
 
-    // go back through the plays
-    for (var h = 0; h < history; h++) {
+    for (var i = 0; i < TicTacToe.MAX_MOVES; i++) {
 
-      var bitpos = 1; // bit position
+      if (i > 0 && i % TicTacToe.BOARD_SIZE === 0)
+        temp += "\n";
 
-      // easiest to just loop through a grid
-      for(var r = 0; r < TTT.BOARD_SIZE; r++) {
-        for(var c = 0; c < TTT.BOARD_SIZE; c++) {
-          
-          if ( (this.board & bitpos) === 0 ) {
-            // if empty
-            temp = temp + TTT.DRAW.BLANK;
-          } else {
-            // loop through to find who
-            for(var p = 0; p < this.players.length; p++) {
-              if (this.players[p][0] & bitpos)
-                temp = temp + TTT.DRAW.PLAYERS[p];
-            }
+      var bitpos = 1 << i;
+
+      if ( (this.board & bitpos) === 0 ) {
+
+        // if empty
+        temp += TicTacToe.DRAW.BLANK;
+
+      } else {
+
+        // loop through to find who
+        for(var p = 0; p < this.players.length; p++) {
+          if (this.players[p][0] & bitpos) {
+            temp += TicTacToe.DRAW.PLAYERS[p];
+            break;
           }
-
-          // shift left 1 and start again
-          bitpos <<= 1;
-
         }
-        temp = temp + "\n";
-      }
 
-      temp = temp + "\n\n";
+      }
     }
 
     return temp;
@@ -167,7 +163,7 @@ class TTT {
     var a = [];
     for (var i = 0; i < this.players.length; i++) {
       var board = this.players[(i + this.turn) % this.players.length][0];
-      while (a.length < TTT.MAX_MOVES*(i+1)) {
+      while (a.length < TicTacToe.MAX_MOVES*(i+1)) {
         a.push( board & 1 === 1 );
         board >>= 1;
       }

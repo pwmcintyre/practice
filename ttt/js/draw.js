@@ -19,7 +19,7 @@ class Draw {
 	}
 
 	resetBoard() {
-		this.board   = new DrawBoard ( new TTT() );
+		this.board   = new DrawBoard ( new TicTacToe() );
 	}
 
 	init() {
@@ -178,7 +178,7 @@ class DrawBoard {
 	}
 
 	update(){
-		for( var x = 0; x < TTT.MAX_MOVES; x++) {
+		for( var x = 0; x < TicTacToe.MAX_MOVES; x++) {
 			var bitPosition = 1 << x;
 			this.bitboard[bitPosition].shapeX.alpha = this.game.board.players[0][0] & bitPosition;
 			this.bitboard[bitPosition].shapeO.alpha = this.game.board.players[1][0] & bitPosition;
@@ -186,7 +186,7 @@ class DrawBoard {
 	}
 
 	reset ( ) {
-		for( var x = 0; x < TTT.MAX_MOVES; x++) {
+		for( var x = 0; x < TicTacToe.MAX_MOVES; x++) {
 			var bitPosition = 1 << x;
 			this.bitboard[bitPosition].shapeX.alpha = 0;
 			this.bitboard[bitPosition].shapeO.alpha = 0;

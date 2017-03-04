@@ -5,7 +5,7 @@ class Game {
     static play (players) {
         
         // new board
-        var board = new TTT();
+        var board = new TicTacToe();
 
         var done = false;
         var moves = board.getAvailableMoves();
@@ -42,7 +42,7 @@ class Game {
     }
 
     reset() {
-        this.board = new TTT();
+        this.board = new TicTacToe();
         this.update();
         return this;
     }
