@@ -6,6 +6,7 @@
         <script src="js/tictactoe.js"></script>
         <script src="js/game.js"></script>
         <script src="js/player.js"></script>
+        <script src="js/neural_net.js"></script>
         <script src="js/draw.js"></script>
         <style>
         body {
@@ -62,7 +63,7 @@ reset();
 function reset () {
 
     player1 = new Human();
-    player2 = new Human();
+    player2 = new Rando();
 
     game = (new Game()).with(player2,player1).onUpdate( function(move){
         console.log( 'game updated', move );

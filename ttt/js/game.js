@@ -82,11 +82,15 @@ class Game {
         }
 
         if ( !done ) {
+
+            var player = game.players[game.board.turn]
+
             // proceed play
             var play = function(move) {
                 game.play(move, game);
             }
-            game.players[game.board.turn].yourTurn( play, game.board );
+
+            player.yourTurn( play, game );
         } else {
             // on game completion
             game.onDone && game.onDone() ||

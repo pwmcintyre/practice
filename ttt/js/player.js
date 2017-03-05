@@ -11,64 +11,60 @@
 
 class Player {
 
-    getRecommendations (availableMoves, board) {
+    // For syncronous games
+    getRecommendations (board) {
         throw new Error("Not implemented");
     }
-    yourTurn( callback ) {
-        throw new Error("Not implemented");
+
+    // For asyncronous games
+    yourTurn( callback, game ) {
+        var move = this.getRecommendations(game);
+        callback( move );
     }
+
+    // Reproduction
     static mate (a, b) {
         throw new Error("Not implemented");
     }
+
     toString() {
         return "Player";
     }
 }
 
 class Human extends Player {
-    getRecommendations (availableMoves, board) {
-        this.callback = callback;
-        this.availableMoves = availableMoves;
-        this.board = board;
-        
-        return this.move || 0;
-    }
+
     yourTurn( callback, board ) {
         // save the callback for when human decides on a move
         this.makeMove = callback;
         this.board = board;
-        
-        console.log("It's your turn, human");
-        console.log(board.toString());
+
+        console.log("It's your turn, " + this.toString());
+        console.log(game.board.toString());
     }
-    makeMove( move ){
-        this.makeMove( move );
-    }
-    static mate (a, b) {
-        throw new Error("I can't help you");
-    }
+
     toString() {
         return "Human";
     }
 }
 
 class Rando extends Player {
-    getRecommendations (availableMoves, board) {
-        var r = Math.floor(Math.random()*availableMoves.length);
-        return availableMoves[r];
-    }
-    yourTurn( callback, board ) {
+
+    getRecommendations (game) {
+
         // get all the moves
-        var moves = board.getAvailableMoves();
+        var moves = game.board.getAvailableMoves();
 
         // make any ol' random valid move
         var r = Math.floor(Math.random() * moves.length);
-
-        callback( moves[r] );
+        
+        return moves[r];
     }
+
     static mate (a, b) {
         return new Rando();
     }
+
     toString() {
         return "Random";
     }
@@ -80,11 +76,7 @@ class Neuro extends Player {
         super();
         this.dna = dna || "";
     }
-    yourTurn( callback, board ) {
-        var moves = board.getAvailableMoves();
-        var move = this.getRecommendations(moves, board);
-        callback( move );
-    }
+
     init(){
         if ( !this.network ) {
             this.network = new NeuralNet({inputs:18, outputs:9}, this.dna);
@@ -93,9 +85,12 @@ class Neuro extends Player {
 
         return this;
     }
-    getRecommendations (availableMoves, board) {
+
+    getRecommendations (game) {
 
         this.init();
+
+        var availableMoves = game.board.getAvailableMoves();
 
         // look at the board
         this.network.setInputs( board.playerBoardToArray() );
@@ -156,6 +151,7 @@ class Neuro extends Player {
         }
         return children;
     }
+    
     toString() {
         return "Neuro";
     }
