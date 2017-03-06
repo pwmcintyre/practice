@@ -16,6 +16,10 @@ class Player {
         this._score = 0;
     }
 
+    makeMove (move) {
+        throw new Error("Not implemented");
+    }
+
     // For syncronous games
     getRecommendations (board) {
         throw new Error("Not implemented");

@@ -72,6 +72,9 @@ class TicTacToe {
     if ( !this.isValidMove(move) )
       throw new Error ("Invalide Move");
 
+    if ( !!this.winner )
+      throw new Error ("Game is already finished");
+
     // add the move to the current players board
     TicTacToe.makeMove( this.players[this.turn], move);
 
