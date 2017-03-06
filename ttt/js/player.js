@@ -11,6 +11,11 @@
 
 class Player {
 
+    constructor() {
+        this.games = 0;
+        this._score = 0;
+    }
+
     // For syncronous games
     getRecommendations (board) {
         throw new Error("Not implemented");
@@ -27,12 +32,25 @@ class Player {
         throw new Error("Not implemented");
     }
 
+    get score () {
+        return this._score / ( this.games || 1 );
+    }
+
+    set score (score) {
+        this._score += score;
+        this.games ++;
+    }
+
     toString() {
         return "Player";
     }
 }
 
 class Human extends Player {
+
+    constructor() {
+        super();
+    }
 
     yourTurn( callback, board ) {
         // save the callback for when human decides on a move
@@ -49,6 +67,10 @@ class Human extends Player {
 }
 
 class Rando extends Player {
+
+    constructor() {
+        super();
+    }
 
     getRecommendations (game) {
 
@@ -151,7 +173,7 @@ class Neuro extends Player {
         }
         return children;
     }
-    
+
     toString() {
         return "Neuro";
     }

@@ -53,34 +53,34 @@
         </ul>
         <script>
 
-var player1, player2, game;
+var game;
 
 var drawBoard = new DrawBoard('canvasboard');
 var drawNet = new DrawNet('canvasnet');
 
+var player1 = new Human();
+var player2 = new Rando();
+
+game = (new Game()).with(player2,player1).onUpdate( function(move){
+    console.log( 'game updated', move );
+    // uncomment this if you want it to update after every turn
+    // you.getRecommendations(game.board.getAvailableMoves(), game.board);
+    drawNet.init();
+    drawBoard.update();
+});
+
+drawBoard.withGame( game )
+.onClick(function(game, move){
+    console.log( move );
+    // me.makeMove( move );
+    game.players[game.board.turn].makeMove( move );
+});
+
 reset();
 
 function reset () {
-
-    player1 = new Human();
-    player2 = new Rando();
-
-    game = (new Game()).with(player2,player1).onUpdate( function(move){
-        console.log( 'game updated', move );
-        // uncomment this if you want it to update after every turn
-        // you.getRecommendations(game.board.getAvailableMoves(), game.board);
-        drawNet.init();
-        drawBoard.update();
-    });
-
-    drawBoard.withGame( game )
-        .onClick(function(game, move){
-            console.log( move );
-            // me.makeMove( move );
-            game.players[game.board.turn].makeMove( move );
-        }).reset();
-
-    game.play();
+    drawBoard.reset();
+    game.reset().play();
 }
 
         </script>

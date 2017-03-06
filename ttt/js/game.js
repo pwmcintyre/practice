@@ -2,6 +2,20 @@
 
 class Game {
 
+    constructor (players) {
+        this.players = players;
+        this.reset();
+        this.updateEvent;
+    }
+
+    static get points() {
+        return {
+            win: 100,
+            tie: 45,
+            loss: 0
+        }
+    }
+
     static play (players) {
         
         // new board
@@ -28,12 +42,6 @@ class Game {
             winner: winner,
             turnsToWin: turns
         };
-    }
-
-    constructor (players) {
-        this.players = players;
-        this.reset();
-        this.updateEvent;
     }
 
     onUpdate( func ) {
@@ -92,6 +100,9 @@ class Game {
 
             player.yourTurn( play, game );
         } else {
+
+            this.scorePlayers();
+
             // on game completion
             game.onDone && game.onDone() ||
                 game.board.winner !== undefined ? 
@@ -100,5 +111,30 @@ class Game {
         }
 
         return game;
+    }
+
+    // score players
+    scorePlayers() {
+        var game = this;
+        this.players.forEach(function(p, idx, arr){
+
+            switch (game.board.winner) {
+
+                // tie
+                case undefined:
+                    p.score = Game.points.tie
+                    break;
+
+                // win
+                case idx:
+                    p.score = Game.points.win
+                    break;
+
+                // tie
+                default:
+                    p.score = Game.points.loss
+                    break;
+            }
+        });
     }
 }
