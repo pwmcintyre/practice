@@ -59,20 +59,17 @@ var drawBoard = new DrawBoard('canvasboard');
 var drawNet = new DrawNet('canvasnet');
 
 var player1 = new Human();
-var player2 = new Rando();
+var player2 = new Neuro().init();
 
-game = (new Game()).with(player2,player1).onUpdate( function(move){
+game = (new Game()).with(player2, player1).onUpdate( function(move){
     console.log( 'game updated', move );
-    // uncomment this if you want it to update after every turn
-    // you.getRecommendations(game.board.getAvailableMoves(), game.board);
-    drawNet.init();
+    drawNet.setNeuralNet( player2.network ).init();
     drawBoard.update();
 });
 
 drawBoard.withGame( game )
 .onClick(function(game, move){
     console.log( move );
-    // me.makeMove( move );
     game.players[game.board.turn].makeMove( move );
 });
 

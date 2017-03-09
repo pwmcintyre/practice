@@ -119,7 +119,7 @@ class Neuro extends Player {
         var availableMoves = game.board.getAvailableMoves();
 
         // look at the board
-        this.network.setInputs( board.playerBoardToArray() );
+        this.network.setInputs( game.board.playerBoardToArray() );
 
         // think about it
         this.network.update();
