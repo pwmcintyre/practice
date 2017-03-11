@@ -16,8 +16,9 @@
             height:100%;
             width:100%;
         }
-        #board {
+        #canvasboard {
             height: 300px;
+            width:  300px;
         }
         #net {
             height: 1200px;
@@ -45,6 +46,7 @@
         <div id="board">
             <canvas id="canvasboard"></canvas>
         </div>
+        <span id="winner"></span>
         <div id="net">
             <canvas id="canvasnet"></canvas>
         </div>
@@ -61,10 +63,16 @@ var drawNet = new DrawNet('canvasnet');
 var player1 = new Human();
 var player2 = new Neuro().init();
 
-game = (new Game()).with(player2, player1).onUpdate( function(move){
+game = (new Game())
+.with(player2, player1)
+.onUpdate( function(move){
     console.log( 'game updated', move );
     drawNet.setNeuralNet( player2.network ).init();
     drawBoard.update();
+}).done( function( winner ){
+    console.log( "winner", winner );
+    var a = document.getElementById( "winner" ).innerHTML = 
+        winner.toString() + " wins";
 });
 
 drawBoard.withGame( game )

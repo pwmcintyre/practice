@@ -167,7 +167,8 @@ class DrawBoard {
 	static get options () {
 		return {
 			size: 60,
-			padding: 10
+			padding: 10,
+			stroke: 10
 		}
 	}
 
@@ -256,7 +257,7 @@ class DrawBoard {
 				var shapeX = new createjs.Shape();
 				area.addChild(shapeX);
 				var g = shapeX.graphics
-				g.setStrokeStyle(8);
+				g.setStrokeStyle( DrawBoard.options.stroke );
 				g.beginStroke("#004659");
 				g.moveTo( DrawBoard.options.padding, DrawBoard.options.padding );
 				g.lineTo( DrawBoard.options.size, DrawBoard.options.size );
@@ -269,7 +270,7 @@ class DrawBoard {
 				var shapeO = new createjs.Shape();
 				area.addChild(shapeO);
 				var g = shapeO.graphics
-				g.setStrokeStyle(8);
+				g.setStrokeStyle( DrawBoard.options.stroke );
 				g.beginStroke("#C22935");
 				g.drawCircle((DrawBoard.options.size+DrawBoard.options.padding)/2, (DrawBoard.options.size+DrawBoard.options.padding)/2, (DrawBoard.options.size-DrawBoard.options.padding)/2);
 				g.endStroke();
@@ -291,7 +292,7 @@ class DrawBoard {
 		var shape = new createjs.Shape();
 		var g = shape.graphics;
 
-		g.setStrokeStyle(4);
+		g.setStrokeStyle( DrawBoard.options.stroke );
 		g.beginStroke("#000000");
 
 		g.moveTo( (DrawBoard.options.size + DrawBoard.options.padding), 0 );

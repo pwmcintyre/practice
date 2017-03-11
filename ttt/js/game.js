@@ -104,10 +104,11 @@ class Game {
             this.scorePlayers();
 
             // on game completion
-            game.onDone && game.onDone() ||
-                game.board.winner !== undefined ? 
-                    console.log( "winner", game.players[game.board.winner] ) :
-                    console.log( "tie" );
+            var winner = null;
+            if ( game.board.winner !== undefined )
+                winner = game.players[game.board.winner]
+            
+            if ( game.onDone ) game.onDone( winner );
         }
 
         return game;
