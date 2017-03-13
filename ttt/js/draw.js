@@ -197,10 +197,10 @@ class DrawBoard {
 	setup ( ) {
 		
 		var board = new createjs.Container();
-		board.x = 20;
-		board.y = 20;
 		board.width = DrawBoard.options.size * 3 + DrawBoard.options.padding * 2;
 		board.height = DrawBoard.options.size * 3 + DrawBoard.options.padding * 2;
+		board.x = (this.canvas.clientWidth/2) - (board.width/2);
+		board.y = (this.canvas.clientHeight/2) - (board.height/2);;
 		this.stage.addChild(board);
 
 		// handle click events

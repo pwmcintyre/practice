@@ -1,93 +1,85 @@
-<html>
-    <head>
-        <script src="js/lib/easeljs-0.8.2.min.js"></script>
-        <script src="js/lib/webgl-0.8.2.min.js"></script>
-        <script src="js/lib/tweenjs-0.6.2.min.js"></script>
-        <script src="js/tictactoe.js"></script>
-        <script src="js/game.js"></script>
-        <script src="js/player.js"></script>
-        <script src="js/neural_net.js"></script>
-        <script src="js/draw.js"></script>
-        <style>
-        body {
-            font-family: monospace;
-        }
-        canvas {
-            height:100%;
-            width:100%;
-        }
-        #canvasboard {
-            height: 300px;
-            width:  300px;
-        }
-        #net {
-            height: 1200px;
-        }
-        ul#log { 
-            display: flex;
-            flex-direction: column-reverse;
-            
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        ul#log>li {
-            flex: 0 0 auto;
-        }
-        ul#log>li:nth-child(odd) {
-            background-color: #ddd;
-        }
-        </style>
-    </head>
-    <body>
-        <div id="input">
-            <button onclick="reset()">reset</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Your page title here :)</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=BioRhyme|Bungee+Shade" rel="stylesheet">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/bower_components/fluidable/fluidable-min.css">
+    <link rel="stylesheet" href="css/style.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+
+  <!-- Input -->
+    <div class="col-group">
+      <div class="col-dt-12">
+        <button class="button-primary" onclick="reset()">reset</button>
+      </div>
+    </div>
+
+  <!-- Board -->
+    <div class="col-group board">
+      <div class="col-dt-4">
+        <div class="player">
+          <h2 class="title">Player One</h2>
+          <div class="name">Human</div>
         </div>
-        <div id="board">
-            <canvas id="canvasboard"></canvas>
+      </div>
+      <div class="col-dt-4">
+        <canvas id="canvasboard"></canvas>
+      </div>
+      <div class="col-dt-4">
+        <div class="player">
+          <h2 class="title">Player Two</h2>
+          <div class="name">Human</div>
         </div>
-        <span id="winner"></span>
-        <div id="net">
-            <canvas id="canvasnet"></canvas>
-        </div>
-        <ul id="log">
+      </div>
+    </div>
 
-        </ul>
-        <script>
+  <!-- Network -->
+    <div class="col-group">
+      <div class="col-dt-12 network">
+        <canvas id="canvasnet"></canvas>
+      </div>
+    </div>
 
-var game;
+  </div>
 
-var drawBoard = new DrawBoard('canvasboard');
-var drawNet = new DrawNet('canvasnet');
+  <!-- Scripts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="js/lib/easeljs-0.8.2.min.js"></script>
+  <script src="js/lib/webgl-0.8.2.min.js"></script>
+  <script src="js/lib/tweenjs-0.6.2.min.js"></script>
+  <script src="js/tictactoe.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/neural_net.js"></script>
+  <script src="js/draw.js"></script>
+  <script src="js/main.js"></script>
 
-var player1 = new Human();
-var player2 = new Neuro().init();
-
-game = (new Game())
-.with(player2, player1)
-.onUpdate( function(move){
-    console.log( 'game updated', move );
-    drawNet.setNeuralNet( player2.network ).init();
-    drawBoard.update();
-}).done( function( winner ){
-    console.log( "winner", winner );
-    var a = document.getElementById( "winner" ).innerHTML = 
-        winner.toString() + " wins";
-});
-
-drawBoard.withGame( game )
-.onClick(function(game, move){
-    console.log( move );
-    game.players[game.board.turn].makeMove( move );
-});
-
-reset();
-
-function reset () {
-    drawBoard.reset();
-    game.reset().play();
-}
-
-        </script>
-    </body>
+</body>
 </html>

@@ -1,0 +1,21 @@
+canvas {
+  height: 100%;
+  width: 100%;
+}
+.board {
+  margin: 0 auto;
+  text-align: center;
+}
+.board #canvasboard {
+  height: 300px;
+  width: 300px;
+}
+.network #canvasnet {
+  height: 1200px;
+}
+.player .title {
+  font-family: 'Bungee Shade', cursive;
+}
+.player .name {
+  font-family: 'BioRhyme', serif;
+}
