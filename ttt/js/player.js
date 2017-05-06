@@ -56,13 +56,12 @@ class Human extends Player {
         super();
     }
 
-    yourTurn( callback, board ) {
+    yourTurn( callback, game ) {
         // save the callback for when human decides on a move
         this.makeMove = callback;
-        this.board = board;
 
-        console.log("It's your turn, " + this.toString());
-        console.log(game.board.toString());
+        console.log( "It's your turn, " + this.toString() );
+        console.log( game.board.toString() );
     }
 
     toString() {

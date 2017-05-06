@@ -59,18 +59,25 @@ class Coach {
     // competes all players against a single opponent x times each
     testPlayers(iterations, callback) {
 
-        iterations = iterations || 1000;
+        iterations = iterations || 2;
 
         var self = this;
-        var jobs = this.players.map(function(playerA, playerIdx){
-            return self.players.map(function(playerB, playerIdx){
-                return {
-                    dna: playerA.dna,
-                    opponent: playerB.dna,
-                    iterations: iterations
-                }
-            })
-        }).reduce((a, b) => a.concat(b), []);
+        // var jobs = this.players.map(function(playerA, playerIdx){
+        //     return self.players.map(function(playerB, playerIdx){
+        //         return {
+        //             dna: playerA.dna,
+        //             opponent: playerB.dna,
+        //             iterations: iterations
+        //         }
+        //     })
+        // }).reduce((a, b) => a.concat(b), []);
+
+        var jobs = makePairs( this.players ).map(function(pair, idx, array){
+            return {
+                players: pair,
+                iterations: iterations
+            }
+        });
 
         var self = this;
         this.workers.process(jobs, function(results){
@@ -142,4 +149,14 @@ function shuffle(a) {
         let j = Math.floor(Math.random() * i);
         [a[i - 1], a[j]] = [a[j], a[i - 1]];
     }
+}
+
+function makePairs( array ) {
+    var pairs = [];
+    for ( var i = 0; i < array.length; i++ ) {
+        for ( var j = i+1; j < array.length; j++) {
+            pairs.push( [ array[i], array[j] ] );
+        }
+    }
+    return pairs;
 }

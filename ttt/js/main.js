@@ -1,32 +1,52 @@
-var game;
 
-var drawBoard = new DrawBoard('canvasboard');
-var drawNet = new DrawNet('canvasnet');
+var app = new Vue({
+	el: '#app',
+	data: {
+		turn: 0,
+		game: new Game(),
+		drawBoard: new DrawBoard('canvasboard'),
+		drawNet: new DrawNet('canvasnet'),
+		playerX: "",
+		playerO: ""
+	},
+	methods: {
+		mounted: function(){
+			console.log("Vue Loaded");
+			this.init();
+		},
+		init: function () {
 
-var player1 = new Human();
-var player2 = new Neuro().init();
+			// this.drawBoard = new DrawBoard('canvasboard');
+			// this.drawNet = new DrawNet('canvasnet');
 
-game = (new Game())
-.with(player2, player1)
-.onUpdate( function(move){
-  console.log( 'game updated', move );
-  drawNet.setNeuralNet( player2.network ).init();
-  drawBoard.update();
-}).done( function( winner ){
-  console.log( "winner", winner );
-  var a = document.getElementById( "winner" ).innerHTML = 
-    winner ? (winner.toString() + " wins") : "tie";
-});
+			this.playerX = new Human();
+			this.PlayerO = new Neuro().init();
 
-drawBoard.withGame( game )
-.onClick(function(game, move){
-  console.log( move );
-  game.players[game.board.turn].makeMove( move );
-});
+			this.game
+			.with(this.PlayerO, this.playerX)
+			.onUpdate( function(move){
+				console.log( 'game updated', move );
+				app.drawNet.setNeuralNet( app.PlayerO.network ).init();
+				app.drawBoard.update();
+			}).done( function( winner ){
+				console.log( "winner", winner );
+				var a = document.getElementById( "winner" ).innerHTML = 
+					winner ? (winner.toString() + " wins") : "tie";
+			});
 
-reset();
+			this.drawBoard.withGame( this.game )
+			.onClick(function(game, move){
+				console.log( move );
+				game.players[game.board.turn].makeMove( move );
+			});
 
-function reset () {
-  drawBoard.reset();
-  game.reset().play();
-}
+			this.$nextTick(function () {
+				app.reset();
+			})
+		},
+		reset: function () {
+			app.drawBoard.reset();
+			app.game.reset().play();
+		}
+	}
+})

@@ -20,76 +20,62 @@ var order;
 var pos;
 var result;
 var i;
-var historyMap = {};
-var dna = "k0o9yuhh04xkrdyyztmsltx85cpup5anr7oiwgtcdz8t8yza9c7nh6scdcxenpczepwt4abhufw6b38y4v3718rzrfuewnhl8ejndil142twwzvsr2arxkrsyo8pqf1j36ahju5ovkcfmbtkve1u0nud01w3fojc4arkfh3c4nd91ohpq7pomxnibrik391ieicrywz50a5fqoqpzqggrkl1d6huc0s4ge72hog8hibsgpzjuz30irerr37780ik5ut2183ttyu4keu1kdg8uk5t6j3972gna0us1p0nb7016usnoko14zvz4r71tkejww03tul873786c0hi9oszqn1haf3xk6fozs2cq9ytmosqqnedfzoyxjivx1tezh4a6pvfpficp7wyvklt81n6097wa16wot9ze6cieuwub0i86qutvu5k0qs0vnt2unury3wtr21ff2j40w4sbjbjaxrlpcpe62ob6ec35gcmr3ojmlnoxapmr2gqtipvaqf6j9k2fsiy269zx106jjnq7atcm77o6p0g60mxose51msc42tuvuslgpqpmpjlujo56wouhjukxn0bguau7g5j3jwxctut6odipxcl2"
+var p2;
+var response = {};
 
 onmessage = function(e) {
 
-    player = new Neuro( e.data.dna );
-    opponent = e.data.opponent ? new Neuro( e.data.opponent ) : new Rando();
-
-    scorecard = {
-        score: 0,
-        win:  0,
-        loss: 0,
-        tie:  0,
-        moves: {
-            min: Infinity,
-            avg: 0,
-            max: 0,
-            count: 0
-        },
-        wins: []
-    }
-
-    historyMap = {};
+    var players = [];
+    e.players.forEach(function(player, i, a){
+        players.push( {
+            player: player.dna ? new Neuro( player.dna ) : new Rando(),
+            scorecard: {
+                score: 0,
+                win:  0,
+                loss: 0,
+                tie:  0,
+                moves: {
+                    min: Infinity,
+                    avg: 0,
+                    max: 0,
+                    count: 0
+                },
+                wins: []
+            }
+        } )
+    });
 
     // run test
     for (i = 0; i < e.data.iterations; i++) {
 
         // swap sides
-        pos = i % 2;
-        order = swap && pos === 0 ? [player, opponent] : [opponent, player];
-        
+        p2 = [ players[i % players.length], players[(i+1) % players.length] ]
+
         // play
-        result = Game.play(order);
+        result = Game.play([p2[0].player, p2[1].player]);
 
-        // store history
-        if(result.winner === pos){
-            var key = JSON.stringify( result.game.history );
-            if( !historyMap[key] ) {
-                historyMap[key] = result.game.board.turn+1;
-                scorecard.wins.push( result.game.history );
+        // score
+        p2.forEach(function(p, idx, arr){
+            p.scorecard.games ++;
+            p.scorecard.moves += result.board.players[idx].length;
+            switch (result.winner) {
+                case idx:
+                    p.scorecard.win++;
+                    break;
+                case undefined:
+                    p.scorecard.tie++;
+                    break;
+                default:
+                    p.scorecard.loss++;
+                    break;
             }
-        }
-
-        switch (result.winner) {
-            case pos:
-                scorecard.win++;
-                break;
-            case undefined:
-                scorecard.tie++;
-                break;
-            default:
-                scorecard.loss++;
-                break;
-        }
-        
-        scorecard.moves.count += result.turnsToWin;
-        scorecard.moves.min =  Math.min(scorecard.moves.min, result.turnsToWin);
-        scorecard.moves.max =  Math.max(scorecard.moves.max, result.turnsToWin);
+        });
     }
 
-    scorecard.moves.avg = scorecard.moves.count / e.data.iterations;
-    scorecard.gamesPlayed = e.data.iterations;
-    scorecard.score = Coach.scorePlayer(scorecard);
-
     // post results
-    postMessage({
-        scorecard: scorecard,
-        dna: player.network.dna
+    response = {}
+    players.forEach(function(p){
+        response[p.player.dna] = p.scorecard;
     });
-
-    // close worker
-    // close();
+    postMessage(response);
 }

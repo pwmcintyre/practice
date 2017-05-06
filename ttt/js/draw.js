@@ -168,7 +168,11 @@ class DrawBoard {
 		return {
 			size: 60,
 			padding: 10,
-			stroke: 10
+			stroke: 10,
+			colour: {
+				X: "#004659",
+				O: "#C22935"
+			}
 		}
 	}
 
@@ -258,7 +262,7 @@ class DrawBoard {
 				area.addChild(shapeX);
 				var g = shapeX.graphics
 				g.setStrokeStyle( DrawBoard.options.stroke );
-				g.beginStroke("#004659");
+				g.beginStroke( DrawBoard.options.colour.X );
 				g.moveTo( DrawBoard.options.padding, DrawBoard.options.padding );
 				g.lineTo( DrawBoard.options.size, DrawBoard.options.size );
 				g.moveTo( DrawBoard.options.size, DrawBoard.options.padding );
@@ -271,7 +275,7 @@ class DrawBoard {
 				area.addChild(shapeO);
 				var g = shapeO.graphics
 				g.setStrokeStyle( DrawBoard.options.stroke );
-				g.beginStroke("#C22935");
+				g.beginStroke( DrawBoard.options.colour.O );
 				g.drawCircle((DrawBoard.options.size+DrawBoard.options.padding)/2, (DrawBoard.options.size+DrawBoard.options.padding)/2, (DrawBoard.options.size-DrawBoard.options.padding)/2);
 				g.endStroke();
 				shapeO.alpha = 0.1;

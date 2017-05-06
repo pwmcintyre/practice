@@ -19,3 +19,9 @@ canvas {
 .player .name {
   font-family: 'BioRhyme', serif;
 }
+.player-one .title {
+  color: #004659;
+}
+.player-two .title {
+  color: #C22935;
+}
